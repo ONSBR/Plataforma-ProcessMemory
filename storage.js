@@ -33,7 +33,11 @@ function Storage() {
     };
 
     this.history = function(appId, instanceId) {
-        return bd.history(appId, instanceId).commits().map(c => c._data._document);
+        return bd.history(appId, instanceId).commits().map(c => {
+            var obj = c._data._document;
+            obj.timestamp = c._timestamp;
+            return obj;
+        } );
     };
 };
 
