@@ -2,11 +2,40 @@
 
 Este documento descreve a API para acessar o serviço de Memória de Processamento, para a Prova de Conceito (POC) da Plataforma de Desenvolvimento de Aplicações do Operador Nacional do Sistema Elétrico (ONS).
 
+## Setup do ambiente
+
+### Repositório
+
+O reposítório se encontra em [ONS - Memória do Processo](https://github.com/ONSBR/Plataforma-ProcessMemory).
+
+###Programas e Módulos 
+
+Primeiramente instale o [Node.js](https://nodejs.org/en/ "NodeJS")
+Em seguida execute ```npm install``` no diretório onde o **Repositório** foi instalado.
+
+### Executando
+Para iniciar a aplicação execute ```node index.js```
+
 ## CREATE
 
 Cria uma instância de uma entidade
 
 ### Request
+
+#### HTTP
+```
+POST /teste/create HTTP/1.1
+Host: localhost:9091
+Content-Type: application/json
+Cache-Control: no-cache
+Postman-Token: 211576c8-2539-aefe-f899-1f37bf3780b2
+
+{
+	"numero" : "123",
+	"correntista" : "José",
+	"saldo" : 400
+}
+```
 
 #### NodeJS
 
@@ -78,9 +107,21 @@ print(response.text)
 
 ## COMMIT
 
-Inserção de uma alteração na história da instância
+Inserção de uma nova versão da instância
 
 ### Request
+
+#### HTTP 
+```
+POST /teste/869f6dc8-40cb-188c-fcab-163a9239893f/commit HTTP/1.1
+Host: localhost:9091
+Content-Type: application/json
+{
+	"numero" : "123",
+	"correntista" : "José",
+	"saldo" : 300
+}
+```
 
 #### NodeJS
 
@@ -156,9 +197,18 @@ print(data.decode("utf-8"))
 
 ## HEAD
 
-Recuperação da primeira ocorrência na história da instância
+Recuperação da última ocorrência na história da instância
 
 ### Request
+
+#### HTTP 
+```
+GET /teste/869f6dc8-40cb-188c-fcab-163a9239893f/head HTTP/1.1
+Host: localhost:9091
+Content-Type: application/json
+Cache-Control: no-cache
+Postman-Token: 2e8963dd-6d32-e2bd-f710-3554866b3c4e
+```
 
 #### NodeJS
 
@@ -240,6 +290,14 @@ print(data.decode("utf-8"))
 Recuperação de toda a história da instância
 
 ### Request
+
+#### HTTP 
+```
+GET /teste/869f6dc8-40cb-188c-fcab-163a9239893f/history HTTP/1.1
+Host: localhost:9091
+Cache-Control: no-cache
+Postman-Token: c24c1852-6e61-4b49-9e26-0c7f859f904a
+```
 
 #### NodeJS
 
