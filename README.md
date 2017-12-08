@@ -10,7 +10,8 @@ O reposítório se encontra em [ONS - Memória do Processo](https://github.com/O
 
 ### Programas e Módulos 
 
-Primeiramente instale o [Node.js](https://nodejs.org/en/ "NodeJS")
+Primeiramente instale o [Node.js](https://nodejs.org/en/ "NodeJS").
+
 Em seguida execute ```npm install``` no diretório onde o **Repositório** foi instalado.
 
 ### Executando
