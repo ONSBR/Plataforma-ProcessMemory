@@ -53,26 +53,17 @@ Database.prototype.save_entity = function(entity, branch, author, message){
     }
     if (utils.exist(branch)){
         repo.checkout(branch);
-        entity._document._branch = branch;
-    }else if(utils.notExist(entity._document._branch)){
-        entity._document._branch = repo.main_branch();
-    }else if (utils.exist(entity._document._branch)){
-        repo.checkout(entity._document._branch);
     }
     var head = repo.head();
-    if (utils.notExist(head)){
-        entity._document._version = 1;
-    }else {
-        entity._document._version = head.data()._document._version + 1;
-    }
-    var hash = repo.commit(entity,message,author,entity._document._branch);
+    
+    var hash = repo.commit(entity,message,author,branch);
     if(utils.exist(entity._transaction)){
         if (utils.notExist(this.SEARCH["transactions"][entity._transaction.id])){
             this.SEARCH["transactions"][entity._transaction.id] = [];
         }
         this.SEARCH["transactions"][entity._transaction.id].push({
             type:entity._document._type,
-            branch:entity._document._branch,
+            branch:entity.branch,
             hash:hash
         });
     }

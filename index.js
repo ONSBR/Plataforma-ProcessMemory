@@ -22,15 +22,16 @@ server.post('/:appId/:instanceId/commit', (req, res, next)=>{
     res.send(id);
 });
 
-server.get('/:appId/findLast', (req, res, next)=>{    
-    var appId = req.params["appId"];
-    res.send(sto.findLast(appId));
-});
-
-server.get('/:appId/:instanceId/findAll', (req, res, next)=>{  
+server.get('/:appId/:instanceId/head', (req, res, next)=>{    
     var appId = req.params["appId"];
     var instanceId = req.params["instanceId"];
-    res.send(sto.findAllInstance(appId, instanceId));
+    res.send(sto.head(appId,instanceId));
+});
+
+server.get('/:appId/:instanceId/history', (req, res, next)=>{  
+    var appId = req.params["appId"];
+    var instanceId = req.params["instanceId"];
+    res.send(sto.history(appId, instanceId));
 });
 
 server.listen(9091, function() {

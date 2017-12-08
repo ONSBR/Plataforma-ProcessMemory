@@ -4,9 +4,9 @@ var utils = require("./utils.js");
 
 
 //var 
-var bd = database.loadDabase("poc");
+var bd = database.loadDabase("poc.db");
 if (bd == undefined) {
-    bd = new database.Database("poc");
+    bd = new database.Database("poc.db");
 }
 
 function Storage() {
@@ -28,11 +28,11 @@ function Storage() {
         return doc._document.id;        
     };
 
-    this.findLast = function(appId) {        
-        return bd.find_all(appId);
+    this.head = function(appId, instanceId) {        
+        return bd.get_by_id(appId, instanceId);
     };
 
-    this.findAllInstance = function(appId, instanceId) {
+    this.history = function(appId, instanceId) {
         return bd.history(appId, instanceId).commits().map(c => c._data._document);
     };
 };
