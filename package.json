@@ -1,7 +1,6 @@
 {
   "name": "node_app",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,5 +10,14 @@
   "dependencies": {
     "restify": "^6.3.4",
     "sha1": "^1.1.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ONSBR/Plataforma-ProcessMemory.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ONSBR/Plataforma-ProcessMemory/issues"
+  },
+  "homepage": "https://github.com/ONSBR/Plataforma-ProcessMemory#readme",
+  "description": ""
 }

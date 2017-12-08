@@ -150,16 +150,19 @@ Database.prototype.history = function(type, id){
 }
 
 function loadDabase (name){
-    var data = fs.readFileSync(name, 'UTF-8');
-    var obj = JSON.parse(data);
-    var r = utils.castTo(Database,obj);
-    for(var collection in r.INDEX){
-        for (var entity in r.INDEX[collection]){
-            var a = repositoryMod.castRepository(r.INDEX[collection][entity]);
-            r.INDEX[collection][entity] = a;
+    if (fs.existsSync(name)) {
+        var data = fs.readFileSync(name, 'UTF-8');
+        var obj = JSON.parse(data);
+        var r = utils.castTo(Database,obj);
+        for(var collection in r.INDEX){
+            for (var entity in r.INDEX[collection]){
+                var a = repositoryMod.castRepository(r.INDEX[collection][entity]);
+                r.INDEX[collection][entity] = a;
+            }
         }
+        return r;
     }
-    return r;
+    return undefined;
 };
 
 module.exports = {

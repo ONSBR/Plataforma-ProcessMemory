@@ -1,46 +1,36 @@
-var repo = require("./repository.js");
-var database = require("./database.js");
-var utils = require("./utils.js");
+var storage = require('./storage.js');
 var restify = require('restify');
 var server = restify.createServer();
 server.use(restify.plugins.queryParser());
 server.use(restify.plugins.bodyParser());
 
 
-var bd = new database.Database("teste");
+var sto = new storage.Storage();
 
-var doc = {
-    _transaction: {},
-    _command: {},
-    _document: {
-        _type: "Document",
-        id: utils.guid(),
-        hello:"World"
-    }
-}
+
 
 //salva qualquer entidade
-server.post('/:entity/create', (req, res, next)=>{
-    var doc = {};
-    doc._document = req.body;
-    doc._document._type= req.params["entity"];
-    doc._document.id = utils.guid();
-    bd.save(doc,"master","sistema","dado salvo");
-    res.send(doc._document.id);
+server.post('/:appId/create', (req, res, next)=>{
+    var id = sto.create(req.params["appId"], req.body)
+    res.send(id);
 });
 
-server.post('/:entity/:instanceId/commit', (req, res, next)=>{
-    var doc = {};
-    doc._document = req.body;
-    doc._document._type= req.params["entity"];
-    doc._document.id = req.params["instanceId"];
-    bd.save(doc,"master","sistema","dado salvo");
-    res.send(doc._document.id);
+server.post('/:appId/:instanceId/commit', (req, res, next)=>{
+    var id = sto.commit(req.params["appId"], 
+                        req.params["instanceId"],
+                        req.body);
+    res.send(id);
 });
 
-server.get('/:entity/findAll', (req, res, next)=>{    
-    var entity = req.params["entity"];
-    res.send(bd.find_all(entity));
+server.get('/:appId/findLast', (req, res, next)=>{    
+    var appId = req.params["appId"];
+    res.send(sto.findLast(appId));
+});
+
+server.get('/:appId/:instanceId/findAll', (req, res, next)=>{  
+    var appId = req.params["appId"];
+    var instanceId = req.params["instanceId"];
+    res.send(sto.findAllInstance(appId, instanceId));
 });
 
 server.listen(9091, function() {

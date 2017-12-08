@@ -244,7 +244,7 @@ CommitData.prototype.set_next = function(nextCommit){
 //mas a diferenca esta em quais acoes o DataHistory pode tomar
 //em relacao ao repositorio
 //o DataHistory é um repositório read-only
-function DataHistory(){
+function DataHistory(name){
     this.BRANCHES = {};
     this.CLOSED_BRANCHES = {};
     this.HEAD = {};
@@ -268,7 +268,7 @@ DataHistory.prototype.branches = function(){
 DataHistory.prototype.commits = function(){
     var commits = [];
     for(var hash in this.INDEX){
-        commits.push(clone(this.INDEX[hash]));
+        commits.push(utils.clone(this.INDEX[hash]));
     }
     commits.sort(function(c1, c2){return c1._timestamp-c2._timestamp});
     return commits;
