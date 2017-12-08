@@ -1,25 +1,14 @@
+# API da Memória de Processamento
 
-
-
-
-# Interface de Programação da Aplicação (API) da Memória de Processamento
---------------
-
-Este documento descreve a API para acessar o serviço de Memória de Processamento para a Prova de Conceito (POC - Proof of Concept) da Plataforma de Desenvolvimento de Aplicações do Operador Nacional do Sistema Elétrico (ONS).
-
+Este documento descreve a API para acessar o serviço de Memória de Processamento para a Prova de Conceito (POC) da Plataforma de Desenvolvimento de Aplicações do Operador Nacional do Sistema Elétrico (ONS).
 
 ## CREATE
---------------
 
 Cria uma instância de uma entidade
 
-
 ### Request
---------------
-
 
 #### NodeJS
---------------
 
 ```
 var http = require("http");
@@ -59,9 +48,8 @@ req.end();
 ```
 
 #### Python
---------------
 
-```
+```python
 import requests
 
 url = "http://localhost:9091/teste/create"
@@ -79,7 +67,7 @@ print(response.text)
 ```
 
 ### Response
---------------
+
 ```
 {
     "instanceId": "869f6dc8-40cb-188c-fcab-163a9239893f",
@@ -89,17 +77,13 @@ print(response.text)
 
 
 ## COMMIT
---------------
 
 Inserção de uma alteração na história da instância
 
-
 ### Request
---------------
-
 
 #### NodeJS
---------------
+
 ```
 var http = require("http");
 
@@ -139,9 +123,8 @@ req.end();
 ```
 
 #### Python
---------------
 
-```
+```python
 import http.client
 
 conn = http.client.HTTPConnection("localhost")
@@ -163,7 +146,7 @@ print(data.decode("utf-8"))
 ```
 
 ### Response
---------------
+
 ```
 {
     "instanceId": "869f6dc8-40cb-188c-fcab-163a9239893f",
@@ -171,19 +154,14 @@ print(data.decode("utf-8"))
 }
 ```
 
-
 ## HEAD
---------------
 
 Recuperação da primeira ocorrência na história da instância
 
-
 ### Request
---------------
-
 
 #### NodeJS
---------------
+
 ```
 var http = require("http");
 
@@ -223,9 +201,8 @@ req.end();
 ```
 
 #### Python
---------------
 
-```
+```python
 import http.client
 
 conn = http.client.HTTPConnection("localhost")
@@ -247,7 +224,7 @@ print(data.decode("utf-8"))
 ```
 
 ### Response
---------------
+
 ```
 {
     "numero": "123",
@@ -259,17 +236,13 @@ print(data.decode("utf-8"))
 ```
 
 ## HISTORY
---------------
 
 Recuperação de toda a história da instância
 
-
 ### Request
---------------
-
 
 #### NodeJS
---------------
+
 ```
 var http = require("http");
 
@@ -307,9 +280,8 @@ req.end();
 ```
 
 #### Python
---------------
 
-```
+```python
 import http.client
 
 conn = http.client.HTTPConnection("localhost")
@@ -328,7 +300,7 @@ print(data.decode("utf-8"))
 ```
 
 ### Response
---------------
+
 ```
 [
     {
@@ -349,4 +321,3 @@ print(data.decode("utf-8"))
     }
 ]
 ```
-
