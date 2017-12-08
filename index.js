@@ -7,19 +7,33 @@ server.use(restify.plugins.bodyParser());
 
 var sto = new storage.Storage();
 
+function format(instanceId) {
+    var d = new Date();
+    // var response = '{ ' + 
+    // '"instanceId"' + ' : ' + '"' + instanceId.toString() + '"' + ' , ' +
+    // '"timestamp"' + ' : ' +  '"' + (d.getTime().toString()) + '"' +
+    // ' }';
 
+    var response = '{ ' + 
+    '"instanceId"' + ' : ' + '"' + instanceId.toString() + '"' + ' , ' +
+    '"timestamp"' + ' : ' +  (d.getTime().toString())  +
+    ' }';
+    return JSON.parse(response);
+}
 
 //salva qualquer entidade
 server.post('/:appId/create', (req, res, next)=>{
-    var id = sto.create(req.params["appId"], req.body)
-    res.send(id);
+    var id = sto.create(req.params["appId"], req.body);
+
+    res.send(format(id));
 });
 
 server.post('/:appId/:instanceId/commit', (req, res, next)=>{
     var id = sto.commit(req.params["appId"], 
                         req.params["instanceId"],
                         req.body);
-    res.send(id);
+
+    res.send(format(id));
 });
 
 server.get('/:appId/:instanceId/head', (req, res, next)=>{    
