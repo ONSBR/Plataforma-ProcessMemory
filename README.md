@@ -15,7 +15,7 @@ Primeiramente instale o [Node.js](https://nodejs.org/en/ "NodeJS").
 Em seguida execute ```npm install``` no diretório onde o **Repositório** foi instalado.
 
 ### Executando
-Para iniciar a aplicação execute ```node index.js```
+Para iniciar a aplicação, execute ```node index.js```
 
 ## CREATE
 
