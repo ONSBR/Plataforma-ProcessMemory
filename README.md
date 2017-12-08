@@ -1,6 +1,6 @@
 # API da Memória de Processamento
 
-Este documento descreve a API para acessar o serviço de Memória de Processamento para a Prova de Conceito (POC) da Plataforma de Desenvolvimento de Aplicações do Operador Nacional do Sistema Elétrico (ONS).
+Este documento descreve a API para acessar o serviço de Memória de Processamento, para a Prova de Conceito (POC) da Plataforma de Desenvolvimento de Aplicações do Operador Nacional do Sistema Elétrico (ONS).
 
 ## CREATE
 
