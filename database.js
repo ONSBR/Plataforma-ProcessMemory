@@ -140,6 +140,12 @@ Database.prototype.history = function(type, id){
     return repositoryMod.castDataHistory(utils.clone(this.INDEX[type][id]));
 }
 
+function clearDatabase (name){
+    if (fs.existsSync(name)) {
+        fs.unlinkSync(name);
+    }
+}
+
 function loadDabase (name){
     if (fs.existsSync(name)) {
         var data = fs.readFileSync(name, 'UTF-8');
@@ -158,6 +164,7 @@ function loadDabase (name){
 
 module.exports = {
     Database: Database,
-    loadDabase: loadDabase
+    loadDabase: loadDabase,
+    clearDatabase: clearDatabase
 }
 
