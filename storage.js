@@ -10,11 +10,11 @@ if (bd == undefined) {
 }
 
 function Storage() {
-    this.create = function(appId, body) {       
+    this.create = function(appId, instanceId, body) {       
         var doc = {};
         doc._document = body;
         doc._document._type= appId;
-        doc._document.id = utils.guid();
+        doc._document.id = instanceId;
         bd.save(doc,"master","sistema","dado salvo");
         return doc._document.id;
     };

@@ -7,33 +7,30 @@ server.use(restify.plugins.bodyParser());
 
 var sto = new storage.Storage();
 
-function format(instanceId) {
-    var d = new Date();
-    // var response = '{ ' + 
-    // '"instanceId"' + ' : ' + '"' + instanceId.toString() + '"' + ' , ' +
-    // '"timestamp"' + ' : ' +  '"' + (d.getTime().toString()) + '"' +
-    // ' }';
-
-    var response = '{ ' + 
-    '"instanceId"' + ' : ' + '"' + instanceId.toString() + '"' + ' , ' +
-    '"timestamp"' + ' : ' +  (d.getTime().toString())  +
-    ' }';
-    return JSON.parse(response);
+function format(appId, instanceId) {
+    var d = new Date();    
+    return {
+        appId: appId,
+        instanceId: instanceId,
+        timestamp: d.getTime()
+    }
 }
 
 //salva qualquer entidade
-server.post('/:appId/create', (req, res, next)=>{
-    var id = sto.create(req.params["appId"], req.body);
+server.post('/:appId/:instanceId/create', (req, res, next)=>{
+    var appId = req.params["appId"];
+    var instanceId = req.params["instanceId"]
+    sto.create(appId, instanceId, req.body);
 
-    res.send(format(id));
+    res.send(format(appId, instanceId));
 });
 
 server.post('/:appId/:instanceId/commit', (req, res, next)=>{
-    var id = sto.commit(req.params["appId"], 
-                        req.params["instanceId"],
-                        req.body);
+    var appId = req.params["appId"];
+    var instanceId = req.params["instanceId"]
+    sto.commit(appId, instanceId, req.body);
 
-    res.send(format(id));
+    res.send(format(appId, instanceId));
 });
 
 server.get('/:appId/:instanceId/head', (req, res, next)=>{    

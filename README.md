@@ -6,7 +6,7 @@ Este documento descreve a API para acessar o serviço de Memória de Processamen
 
 ### Repositório
 
-O reposítório se encontra em [ONS - Memória do Processo](https://github.com/ONSBR/Plataforma-ProcessMemory).
+O reposítório se encontra em [ONS - Process Memory](https://github.com/ONSBR/Plataforma-ProcessMemory).
 
 ### Programas e Módulos 
 
@@ -25,7 +25,7 @@ Cria uma instância de uma entidade
 
 #### HTTP
 ```
-POST /teste/create HTTP/1.1
+POST /criaConta/869f6dc8-40cb-188c-fcab-163a9239893f/create HTTP/1.1
 Host: localhost:9091
 Content-Type: application/json
 Cache-Control: no-cache
@@ -50,7 +50,8 @@ var options = {
   ],
   "port": "9091",
   "path": [
-    "teste",
+    "criaConta",
+    "869f6dc8-40cb-188c-fcab-163a9239893f",
     "create"
   ],
   "headers": {
@@ -82,7 +83,7 @@ req.end();
 ```python
 import requests
 
-url = "http://localhost:9091/teste/create"
+url = "http://localhost:9091/criaConta/869f6dc8-40cb-188c-fcab-163a9239893f/create"
 
 payload = "{\n\t\"numero\" : \"123\",\n\t\"correntista\" : \"José\",\n\t\"saldo\" : 100\n}\n\t"
 headers = {
@@ -100,6 +101,7 @@ print(response.text)
 
 ```
 {
+    "appId" : "criaConta"
     "instanceId": "869f6dc8-40cb-188c-fcab-163a9239893f",
     "timestamp": 1512756474862
 }
@@ -114,7 +116,7 @@ Inserção de uma nova versão da instância
 
 #### HTTP 
 ```
-POST /teste/869f6dc8-40cb-188c-fcab-163a9239893f/commit HTTP/1.1
+POST /criaConta/869f6dc8-40cb-188c-fcab-163a9239893f/commit HTTP/1.1
 Host: localhost:9091
 Content-Type: application/json
 {
@@ -136,7 +138,7 @@ var options = {
   ],
   "port": "9091",
   "path": [
-    "teste",
+    "criaConta",
     "869f6dc8-40cb-188c-fcab-163a9239893f",
     "commit"
   ],
@@ -179,7 +181,7 @@ headers = {
     'Postman-Token': "2b63df83-ed5c-d0d0-742f-e1b14850be89"
     }
 
-conn.request("POST", "teste,869f6dc8-40cb-188c-fcab-163a9239893f,commit", payload, headers)
+conn.request("POST", "criaConta,869f6dc8-40cb-188c-fcab-163a9239893f,commit", payload, headers)
 
 res = conn.getresponse()
 data = res.read()
@@ -191,6 +193,7 @@ print(data.decode("utf-8"))
 
 ```
 {
+    "appId" : "criaConta"
     "instanceId": "869f6dc8-40cb-188c-fcab-163a9239893f",
     "timestamp": 1512756584117
 }
@@ -204,7 +207,7 @@ Recuperação da última ocorrência na história da instância
 
 #### HTTP 
 ```
-GET /teste/869f6dc8-40cb-188c-fcab-163a9239893f/head HTTP/1.1
+GET /criaConta/869f6dc8-40cb-188c-fcab-163a9239893f/head HTTP/1.1
 Host: localhost:9091
 Content-Type: application/json
 Cache-Control: no-cache
@@ -223,7 +226,7 @@ var options = {
   ],
   "port": "9091",
   "path": [
-    "teste",
+    "criaConta",
     "869f6dc8-40cb-188c-fcab-163a9239893f",
     "head"
   ],
@@ -266,7 +269,7 @@ headers = {
     'Postman-Token': "e2285ef7-273d-d159-28ac-3f8ca6f0be17"
     }
 
-conn.request("GET", "teste,869f6dc8-40cb-188c-fcab-163a9239893f,head", payload, headers)
+conn.request("GET", "criaConta,869f6dc8-40cb-188c-fcab-163a9239893f,head", payload, headers)
 
 res = conn.getresponse()
 data = res.read()
@@ -281,7 +284,7 @@ print(data.decode("utf-8"))
     "numero": "123",
     "correntista": "José",
     "saldo": 300,
-    "_type": "teste",
+    "_type": "criaConta",
     "id": "869f6dc8-40cb-188c-fcab-163a9239893f"
 }
 ```
@@ -294,7 +297,7 @@ Recuperação de toda a história da instância
 
 #### HTTP 
 ```
-GET /teste/869f6dc8-40cb-188c-fcab-163a9239893f/history HTTP/1.1
+GET /criaConta/869f6dc8-40cb-188c-fcab-163a9239893f/history HTTP/1.1
 Host: localhost:9091
 Cache-Control: no-cache
 Postman-Token: c24c1852-6e61-4b49-9e26-0c7f859f904a
@@ -312,7 +315,7 @@ var options = {
   ],
   "port": "9091",
   "path": [
-    "teste",
+    "criaConta",
     "869f6dc8-40cb-188c-fcab-163a9239893f",
     "history"
   ],
@@ -350,7 +353,7 @@ headers = {
     'Postman-Token': "b3174c80-46f5-3146-b5f5-fc70c308833a"
     }
 
-conn.request("GET", "teste,869f6dc8-40cb-188c-fcab-163a9239893f,history", headers=headers)
+conn.request("GET", "criaConta,869f6dc8-40cb-188c-fcab-163a9239893f,history", headers=headers)
 
 res = conn.getresponse()
 data = res.read()
@@ -366,7 +369,7 @@ print(data.decode("utf-8"))
         "numero": "123",
         "correntista": "José",
         "saldo": 400,
-        "_type": "teste",
+        "_type": "criaConta",
         "id": "869f6dc8-40cb-188c-fcab-163a9239893f",
         "timestamp": 1512756474859
     },
@@ -374,7 +377,7 @@ print(data.decode("utf-8"))
         "numero": "123",
         "correntista": "José",
         "saldo": 300,
-        "_type": "teste",
+        "_type": "criaConta",
         "id": "869f6dc8-40cb-188c-fcab-163a9239893f",
         "timestamp": 1512756584115
     }
