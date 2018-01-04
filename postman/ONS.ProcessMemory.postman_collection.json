@@ -1,0 +1,118 @@
+{
+	"info": {
+		"name": "ONS.ProcessMemory",
+		"_postman_id": "3098ca4f-2555-bf09-3947-b3f8dc946527",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "ProcessMemory:create",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"conta\" : \"123\",\n\t\"nome\" : \"José\",\n\t\"saldo\" : 400\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9091/criaConta/869f6dc8-40cb-188c-fcab-163a9239893f/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9091",
+					"path": [
+						"criaConta",
+						"869f6dc8-40cb-188c-fcab-163a9239893f",
+						"create"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "ProcessMemory:commit",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"conta\" : \"123\",\n\t\"nome\" : \"José\",\n\t\"saldo\" : 300\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9091/criaConta/869f6dc8-40cb-188c-fcab-163a9239893f/commit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9091",
+					"path": [
+						"criaConta",
+						"869f6dc8-40cb-188c-fcab-163a9239893f",
+						"commit"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "ProcessMemory:head",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:9091/criaConta/869f6dc8-40cb-188c-fcab-163a9239893f/head",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9091",
+					"path": [
+						"criaConta",
+						"869f6dc8-40cb-188c-fcab-163a9239893f",
+						"head"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "ProcessMemory:history",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:9091/criaConta/869f6dc8-40cb-188c-fcab-163a9239893f/history",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9091",
+					"path": [
+						"criaConta",
+						"869f6dc8-40cb-188c-fcab-163a9239893f",
+						"history"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
