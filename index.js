@@ -22,8 +22,7 @@ server.post('/:appId/:instanceId/create', (req, res, next)=>{
     var instanceId = req.params["instanceId"]
     sto.create(appId, instanceId, req.body);
 
-    //res.send(format(appId, instanceId));
-    res.send(200);
+    res.send(format(appId, instanceId));
 });
 
 server.post('/:appId/:instanceId/commit', (req, res, next)=>{
@@ -44,6 +43,13 @@ server.get('/:appId/:instanceId/history', (req, res, next)=>{
     var appId = req.params["appId"];
     var instanceId = req.params["instanceId"];
     res.send(sto.history(appId, instanceId));
+});
+
+server.get('/:appId/:instanceId/first', (req, res, next)=>{  
+    var appId = req.params["appId"];
+    var instanceId = req.params["instanceId"];
+    var list = sto.history(appId, instanceId);
+    res.send(list && list.length > 0? list[0]: undefined);
 });
 
 server.listen(9091, function() {
