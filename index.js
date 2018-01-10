@@ -45,6 +45,13 @@ server.get('/:appId/:instanceId/history', (req, res, next)=>{
     res.send(sto.history(appId, instanceId));
 });
 
+server.get('/:appId/:instanceId/first', (req, res, next)=>{  
+    var appId = req.params["appId"];
+    var instanceId = req.params["instanceId"];
+    var list = sto.history(appId, instanceId);
+    res.send(list && list.length > 0? list[0]: undefined);
+});
+
 server.listen(9091, function() {
     console.log('%s listening at %s', server.name, server.url);
 });
