@@ -22,7 +22,7 @@ server.post('/:appId/:instanceId/create', (req, res, next)=>{
     var instanceId = req.params["instanceId"]
     sto.create(appId, instanceId, req.body);
 
-    res.send(format(appId, instanceId));
+    res.send(200);
 });
 
 server.post('/:appId/:instanceId/commit', (req, res, next)=>{
