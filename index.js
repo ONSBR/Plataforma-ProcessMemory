@@ -22,7 +22,7 @@ server.post('/:appId/:instanceId/create', (req, res, next)=>{
     var instanceId = req.params["instanceId"]
     sto.create(appId, instanceId, req.body);
 
-    res.send(format(appId, instanceId));
+    res.send(200);
 });
 
 server.post('/:appId/:instanceId/commit', (req, res, next)=>{
@@ -52,6 +52,6 @@ server.get('/:appId/:instanceId/first', (req, res, next)=>{
     res.send(list && list.length > 0? list[0]: undefined);
 });
 
-server.listen(9000, function() {
+server.listen(9091, function() {
     console.log('%s listening at %s', server.name, server.url);
 });
