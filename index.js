@@ -8,7 +8,7 @@ server.use(restify.plugins.bodyParser());
 var sto = new storage.Storage();
 
 function format(appId, instanceId) {
-    var d = new Date();    
+    var d = new Date();
     return {
         appId: appId,
         instanceId: instanceId,
@@ -20,7 +20,12 @@ function format(appId, instanceId) {
 server.post('/:appId/:instanceId/create', (req, res, next)=>{
     var appId = req.params["appId"];
     var instanceId = req.params["instanceId"]
-    sto.create(appId, instanceId, req.body);
+    if(!req.body){
+        sto.create(appId, instanceId, {});
+    }else{
+        sto.create(appId, instanceId, req.body);
+    }
+
 
     res.send(200);
 });
@@ -33,19 +38,19 @@ server.post('/:appId/:instanceId/commit', (req, res, next)=>{
     res.send(format(appId, instanceId));
 });
 
-server.get('/:appId/:instanceId/head', (req, res, next)=>{    
+server.get('/:appId/:instanceId/head', (req, res, next)=>{
     var appId = req.params["appId"];
     var instanceId = req.params["instanceId"];
     res.send(sto.head(appId,instanceId));
 });
 
-server.get('/:appId/:instanceId/history', (req, res, next)=>{  
+server.get('/:appId/:instanceId/history', (req, res, next)=>{
     var appId = req.params["appId"];
     var instanceId = req.params["instanceId"];
     res.send(sto.history(appId, instanceId));
 });
 
-server.get('/:appId/:instanceId/first', (req, res, next)=>{  
+server.get('/:appId/:instanceId/first', (req, res, next)=>{
     var appId = req.params["appId"];
     var instanceId = req.params["instanceId"];
     var list = sto.history(appId, instanceId);
