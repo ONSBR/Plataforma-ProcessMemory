@@ -18,12 +18,11 @@ function format(appId, instanceId) {
 
 //salva qualquer entidade
 server.post('/:instanceId/create', (req, res, next)=>{
-    var appId = req.params["appId"];
     var instanceId = req.params["instanceId"]
     if(!req.body){
-        sto.create(appId, instanceId, {});
+        sto.create(instanceId, {});
     }else{
-        sto.create(appId, instanceId, req.body);
+        sto.create(instanceId, req.body);
     }
 
 
