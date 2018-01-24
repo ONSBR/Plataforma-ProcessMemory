@@ -17,7 +17,7 @@ function format(appId, instanceId) {
 }
 
 //salva qualquer entidade
-server.post('/:appId/:instanceId/create', (req, res, next)=>{
+server.post('/:instanceId/create', (req, res, next)=>{
     var appId = req.params["appId"];
     var instanceId = req.params["instanceId"]
     if(!req.body){
@@ -30,33 +30,30 @@ server.post('/:appId/:instanceId/create', (req, res, next)=>{
     res.send(200);
 });
 
-server.post('/:appId/:instanceId/commit', (req, res, next)=>{
-    var appId = req.params["appId"];
+server.post('/:instanceId/commit', (req, res, next)=>{
     var instanceId = req.params["instanceId"]
-    sto.commit(appId, instanceId, req.body);
+    sto.commit(instanceId, req.body);
 
-    res.send(format(appId, instanceId));
+    res.send(format(instanceId));
 });
 
-server.get('/:appId/:instanceId/head', (req, res, next)=>{
-    var appId = req.params["appId"];
+server.get('/:instanceId/head', (req, res, next)=>{
     var instanceId = req.params["instanceId"];
-    res.send(sto.head(appId,instanceId));
+    res.send(sto.head(instanceId));
 });
 
-server.get('/:appId/:instanceId/history', (req, res, next)=>{
-    var appId = req.params["appId"];
+server.get('/:instanceId/history', (req, res, next)=>{
     var instanceId = req.params["instanceId"];
-    res.send(sto.history(appId, instanceId));
+    res.send(sto.history(instanceId));
 });
 
-server.get('/:appId/:instanceId/first', (req, res, next)=>{
-    var appId = req.params["appId"];
+server.get('/:instanceId/first', (req, res, next)=>{
     var instanceId = req.params["instanceId"];
-    var list = sto.history(appId, instanceId);
+    var list = sto.history(instanceId);
     res.send(list && list.length > 0? list[0]: undefined);
 });
 
-server.listen(9091, function() {
+var port = process.env.PORT || 9092;
+server.listen(port, function() {
     console.log('%s listening at %s', server.name, server.url);
 });
