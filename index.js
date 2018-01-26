@@ -13,12 +13,12 @@ function format(appId, instanceId) {
         appId: appId,
         instanceId: instanceId,
         timestamp: d.getTime()
-    }
+    };
 }
 
 //salva qualquer entidade
 server.post('/:instanceId/create', (req, res, next)=>{
-    var instanceId = req.params["instanceId"]
+    var instanceId = req.params.instanceId;
     if(!req.body){
         sto.create(instanceId, {});
     }else{
@@ -30,24 +30,33 @@ server.post('/:instanceId/create', (req, res, next)=>{
 });
 
 server.post('/:instanceId/commit', (req, res, next)=>{
-    var instanceId = req.params["instanceId"]
+    var instanceId = req.params.instanceId;
     sto.commit(instanceId, req.body);
 
     res.send(format(instanceId));
 });
 
 server.get('/:instanceId/head', (req, res, next)=>{
-    var instanceId = req.params["instanceId"];
+    var instanceId = req.params.instanceId;
     res.send(sto.head(instanceId));
 });
 
 server.get('/:instanceId/history', (req, res, next)=>{
-    var instanceId = req.params["instanceId"];
-    res.send(sto.history(instanceId));
+    var instanceId = req.params.instanceId;
+    var first = req.query.first;
+    var last = req.query.last;
+    var history = sto.history(instanceId);
+    if (first){
+       res.send(history.slice(0,first));
+    }else if(last){
+       res.send(history.slice(history.length - last,history.length)); 
+    }else{
+       res.send(sto.history(instanceId));
+    }
 });
 
 server.get('/:instanceId/first', (req, res, next)=>{
-    var instanceId = req.params["instanceId"];
+    var instanceId = req.params.instanceId;
     var list = sto.history(instanceId);
     res.send(list && list.length > 0? list[0]: undefined);
 });
