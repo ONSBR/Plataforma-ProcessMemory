@@ -1,16 +1,15 @@
-var storage = require('./storage.js');
+var Storage = require('./storage.js');
 var restify = require('restify');
 var server = restify.createServer();
 server.use(restify.plugins.queryParser());
 server.use(restify.plugins.bodyParser());
 
 
-var sto = new storage.Storage();
+var sto = new Storage({ip: "localhost", database : "test000"});
 
-function format(appId, instanceId) {
+function format(instanceId) {
     var d = new Date();
     return {
-        appId: appId,
         instanceId: instanceId,
         timestamp: d.getTime()
     };
@@ -18,34 +17,73 @@ function format(appId, instanceId) {
 
 //salva qualquer entidade
 server.post('/:instanceId/create', (req, res, next)=>{
+    
     var instanceId = req.params.instanceId;
-    if(!req.body){
-        sto.create(instanceId, {});
-    }else{
-        sto.create(instanceId, req.body);
+    data = {}
+    if(req.body){
+        data = req.body;
     }
 
-
-    res.send(200);
+    sto.create(instanceId, data).
+        then((result) => {
+            res.send(200);            
+        }).
+        catch((err) => {
+            res.send(500);
+        });
 });
 
 server.post('/:instanceId/commit', (req, res, next)=>{
     var instanceId = req.params.instanceId;
-    sto.commit(instanceId, req.body);
+    data = {}
+    if(req.body){
+        data = req.body;
+    }
 
-    res.send(format(instanceId));
+    sto.commit(instanceId, data).
+        then((result) => {
+            res.send(result);
+        }).
+        catch((err) => {
+            res.send(500);
+        });    
 });
 
 server.get('/:instanceId/head', (req, res, next)=>{
     var instanceId = req.params.instanceId;
-    res.send(sto.head(instanceId));
+    sto.head(instanceId).
+        then((result) => {
+            if (result.amount == 1) {
+                res.send(result.doc);
+            }
+            else {
+                res.send(undefined);
+            }
+        }).
+        catch((err) => {
+            res.send(500);
+        });      
 });
 
 server.get('/:instanceId/history', (req, res, next)=>{
     var instanceId = req.params.instanceId;
     var first = req.query.first;
     var last = req.query.last;
-    var history = sto.history(instanceId);
+    console.log("instanceId =",instanceId, ", first =", first, ", last =", last);
+    sto.history(instanceId, first, last).
+        then((result) => {
+            if (result.amount == 0) {
+                res.send(undefined);                
+            }
+            else {
+                res.send(result.doc);
+            }
+        }).
+        catch((err) => {
+            res.send(500);
+        }); 
+
+/*     var history = sto.history(instanceId);
     if (first){
        res.send(history.slice(0,first));
     }else if(last){
@@ -53,12 +91,23 @@ server.get('/:instanceId/history', (req, res, next)=>{
     }else{
        res.send(sto.history(instanceId));
     }
+ */
 });
 
 server.get('/:instanceId/first', (req, res, next)=>{
     var instanceId = req.params.instanceId;
-    var list = sto.history(instanceId);
-    res.send(list && list.length > 0? list[0]: undefined);
+    sto.first(instanceId).
+        then((result) => {
+            if (result.amount == 1) {
+                res.send(result.doc);
+            }
+            else {
+                res.send(undefined);
+            }
+        }).
+        catch((err) => {
+            res.send(500);
+        });   
 });
 
 var port = process.env.PORT || 9091;
