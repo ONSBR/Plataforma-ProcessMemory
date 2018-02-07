@@ -2,6 +2,10 @@ const mongo = require('mongodb').MongoClient;
 const assert = require('assert');
 const uuid = require('uuid-v4');  
 
+/**
+ * @description Responsável pelo armazanamento e recuperação 
+ * de entidades do servidor mongodb
+ */
 class Storage {
 
     /**
@@ -19,29 +23,147 @@ class Storage {
         this.database = config.database;
     }
 
+    /**
+     * @description Cria uma instância
+     * @param {*} instanceId instância (de uma app) que está fazendo a criação
+     * @param {*} body instância da entidade
+     * @returns Promisse com {instanceId : instanceId, timestamp : ts} se sucesso
+     */
     create(instanceId, body) {
         return this.save(instanceId, body);
     }
 
+    /**
+     * @description Inclui uma nova versão da enitade
+     * @param {*} instanceId instância (de uma app) que está fazendo a criação 
+     * @param {*} body instância com a nova versão da entidade
+     * @returns Promisse com {instanceId : instanceId, timestamp : ts} se sucesso
+     */
     commit(instanceId, body) {
         return this.save(instanceId, body);
     }
 
+    /**
+     * @description Recupera a versão mais recente da entidade
+     * @param {*} instanceId  instância (de uma app) que recuperando a 
+     * versão de uma entidade
+     * @returns Promisse com um conjunto com  instâncias da entidade em uma chave 'data':
+     * @example
+        [
+            {
+                "data": {
+                    "conta": "456",
+                    "nome": "Manoel",
+                    "saldo": 620
+                }
+            }
+        ]
+     */
     head(instanceId) {
         return this.find(instanceId, -1, 1);
     }
 
+    /**
+     * @description Recupera a versão mais antiga da entidade
+     * @param {*} instanceId  instância (de uma app) que recuperando a 
+     * versão de uma entidade
+     * @returns Promisse com um conjunto com uma instância da entidade em uma chave 'data':
+     * @example
+        [
+            {
+                "data": {
+                    "conta": "456",
+                    "nome": "Manoel",
+                    "saldo": 250
+                }
+            }
+        ]
+     */
     first (instanceId) {
         return this.find(instanceId, 1);
     }
 
+    /**
+     * @description Recupera a história das versões da entidade
+     * @param {*} instanceId  instância (de uma app) que recuperando a 
+     * versão de uma entidade
+     * @param first se definido, somente as 'first' primeiras versões 
+     * da entidade serão recuperadas
+     * @param last se  definido, somente as 'last' últimas versões 
+     * da entidade serão recuperadas
+     *
+     * @returns Promisse com falha com valor -1, se first e last estiverem definidos     * 
+     * @returns Promisse com um conjunto com uma instância da entidade em uma chave 'data':     
+     * @example
+        [
+            {
+                "data": {
+                    "conta": "456",
+                    "nome": "Manoel",
+                    "saldo": 250
+                }
+            },
+            {
+                "data": {
+                    "conta": "456",
+                    "nome": "Manoel",
+                    "saldo": 255
+                }
+            },
+            {
+                "data": {
+                    "conta": "456",
+                    "nome": "Manoel",
+                    "saldo": 300
+                }
+            },
+            {
+                "data": {
+                    "conta": "456",
+                    "nome": "Manoel",
+                    "saldo": 580
+                }
+            },
+            {
+                "data": {
+                    "conta": "456",
+                    "nome": "Manoel",
+                    "saldo": 650
+                }
+            },
+            {
+                "data": {
+                    "conta": "456",
+                    "nome": "Manoel",
+                    "saldo": 620
+                }
+            }
+        ]
+     */    
     history(instanceId, first, last) {
         return this.find(instanceId, first, last);
     }
 
+
+    /**
+     * @description Recupera a história das versões da entidade
+     * @param {*} instanceId  instância (de uma app) que recuperando a 
+     * versão de uma entidade
+     * @param first se definido, somente as 'first' primeiras versões 
+     * da entidade serão recuperadas
+     * @param last se  definido, somente as 'last' últimas versões 
+     * da entidade serão recuperadas
+     * 
+     * @returns Promisse com um conjunto com uma instância da entidade em uma chave 'data':
+     * @returns Promisse com falha com valor -1
+     */ 
     find(instanceId, first=-1, last=-1) {
         var self = this;
         var promise = new Promise((resolve, reject) => { 
+
+            if ( (first != -1) && (last != -1) ) {
+                reject(-1);
+            }
             mongo.connect(this.url, 
                 function(err, client) {
                     if (err) {
@@ -51,10 +173,11 @@ class Storage {
                     var db = client.db(self.database);
                     var collection_name = "instance_" + instanceId.replace(/-/g, '_');    
                     var collection = db.collection(collection_name);
+                    var projection = {'data':1, _id : 0};
 
                     var resultSet = {}
                     if (first != -1) {
-                        resultSet = collection.find().limit(parseInt(first)).sort( {timestamp : 1});
+                        resultSet = collection.find().project(projection).limit(parseInt(first)).sort( {timestamp : 1});
                         resultSet.toArray((err,docs) => {
                             if (err) {reject(err);} 
                             else {resolve(docs);}
@@ -64,7 +187,7 @@ class Storage {
                         collection.count()
                             .then((count) => {
                                 var skip = count - parseInt(last);
-                                resultSet = collection.find().skip(skip).sort({timestamp : 1});      
+                                resultSet = collection.find().project(projection).skip(skip).sort({timestamp : 1});      
                                 resultSet.toArray((err,docs) => {
                                     if (err) {reject(err);} 
                                     else {resolve(docs);}
@@ -73,7 +196,7 @@ class Storage {
                             .catch((e) => {reject(e);});
                     }
                     else {
-                        resultSet = collection.find().sort( {timestamp : 1});
+                        resultSet = collection.find().project(projection).sort( {timestamp : 1});
                         resultSet.toArray((err,docs) => {
                             if (err) {reject(err);} 
                             else {resolve(docs);}
@@ -86,7 +209,12 @@ class Storage {
     }    
 
 
-
+    /**
+     * @description Salva um instância de uma entidade
+     * @param {*} instanceId instância (de uma app) que está fazendo a inserção
+     * @param {*} body instância da entidade
+     * @returns Promisse com {instanceId : instanceId, timestamp : ts} se sucesso
+     */
     save(instanceId, body) {
         var self = this;
         var promise = new Promise((resolve, reject) => { 
@@ -120,60 +248,3 @@ class Storage {
 
 module.exports = Storage;
 
-
-
-
-
-
-
-
-
-
-
-
-
-/* var repo = require("./repository.js");
-var database = require("./database.js");
-var utils = require("./utils.js");
-
-
-//var
-var bd = database.loadDabase("poc.db");
-if (bd == undefined) {
-    bd = new database.Database("poc.db");
-}
-
-function Storage() {
-    this.create = function(instanceId, body) {
-        var doc = {};
-        doc._document = body;
-        doc._document._type= instanceId;
-        doc._document.id = instanceId;
-        bd.save(doc,"master","sistema","dado salvo");
-        return doc._document.id;
-    };
-
-    this.commit = function(instanceId, body) {
-        var doc = {};
-        doc._document = body;
-        doc._document._type= instanceId;
-        doc._document.id = instanceId;
-        bd.save(doc,"master","sistema","dado salvo");
-        return doc._document.id;
-    };
-
-    this.head = function(instanceId) {
-        return bd.get_by_id(instanceId, instanceId);
-    };
-
-    this.history = function(instanceId) {
-        return bd.history(instanceId, instanceId).commits().map(c => {
-            var obj = c._data._document;
-            obj.timestamp = c._timestamp;
-            return obj;
-        } );
-    };
-};
-
-
-module.exports = {Storage} */
