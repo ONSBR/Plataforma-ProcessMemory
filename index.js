@@ -5,7 +5,7 @@ server.use(restify.plugins.queryParser());
 server.use(restify.plugins.bodyParser());
 
 
-var sto = new Storage({ip: "localhost", database : "test000"});
+var sto = new Storage({mongoip: "localhost", database : "process_memory"});
 
 function format(instanceId) {
     var d = new Date();
@@ -29,6 +29,7 @@ server.post('/:instanceId/create', (req, res, next)=>{
             res.send(200);            
         }).
         catch((err) => {
+            console.log("Erro no 'create':",err);
             res.send(500);
         });
 });
@@ -45,6 +46,7 @@ server.post('/:instanceId/commit', (req, res, next)=>{
             res.send(200);
         }).
         catch((err) => {
+            console.log("Erro no 'commit':",err);
             res.send(500);
         });    
 });
@@ -56,6 +58,7 @@ server.get('/:instanceId/head', (req, res, next)=>{
             res.send(result);
         }).
         catch((err) => {
+            console.log("Erro no 'head':",err);
             res.send(500);
         });      
 });
@@ -64,24 +67,14 @@ server.get('/:instanceId/history', (req, res, next)=>{
     var instanceId = req.params.instanceId;
     var first = req.query.first;
     var last = req.query.last;
-    console.log("instanceId =",instanceId, ", first =", first, ", last =", last);
     sto.history(instanceId, first, last).
         then((result) => {
             res.send(result);
         }).
         catch((err) => {
+            console.log("Erro no 'history':",err);
             res.send(500);
         }); 
-
-/*     var history = sto.history(instanceId);
-    if (first){
-       res.send(history.slice(0,first));
-    }else if(last){
-       res.send(history.slice(history.length - last,history.length)); 
-    }else{
-       res.send(sto.history(instanceId));
-    }
- */
 });
 
 server.get('/:instanceId/first', (req, res, next)=>{
@@ -91,6 +84,7 @@ server.get('/:instanceId/first', (req, res, next)=>{
             res.send(result);
         }).
         catch((err) => {
+            console.log("Erro no 'first':",err);
             res.send(500);
         });   
 });

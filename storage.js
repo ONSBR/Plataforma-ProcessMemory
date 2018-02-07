@@ -8,23 +8,18 @@ class Storage {
      * 
      * @param {*} config contains 
      * { 
-     *     mongodb : "some-ip",
+     *     mongoip : "some-ip",
      *     database : "some-database"
      * }
      */
     constructor(config) {
-        //this.config = config;
-      
+   
         // Connection URL
-        this.url = "mongodb://" + config.ip + ":27017";
+        this.url = "mongodb://" + config.mongoip + ":27017";
         this.database = config.database;
-
-  
-  
     }
 
     create(instanceId, body) {
-        console.log("instanceId =", instanceId, ", body =", body);
         return this.save(instanceId, body);
     }
 
@@ -33,51 +28,18 @@ class Storage {
     }
 
     head(instanceId) {
-        return this.first_or_last(instanceId, -1);
+        return this.find(instanceId, -1, 1);
     }
 
     first (instanceId) {
-        return this.first_or_last(instanceId, 1);
+        return this.find(instanceId, 1);
     }
 
     history(instanceId, first, last) {
         return this.find(instanceId, first, last);
     }
 
-    first_or_last(instanceId, last = 1) {
-        console.log("instance =",instanceId);
-        var self = this;
-        var promise = new Promise((resolve, reject) => { 
-            mongo.connect(this.url, 
-                function(err, client) {
-                    if (err) {
-                        reject(err);
-                    }
-                    var db = client.db(self.database);
-                    var collection_name = "instance_" + instanceId.replace(/-/g, '_');    
-
-                    console.log("collection_name =",collection_name);
-                    var collection = db.collection(collection_name);
-
-                    collection.find().limit(1).sort( {timestamp : last}).
-                        toArray((err,docs) => {
-                            if (err) {
-                                reject(err);
-                            }
-                            else {
-                                resolve(docs);
-                            }                
-                        });
-                }                
-            );
-        });
-        return promise;
-    }
-
-
-
     find(instanceId, first=-1, last=-1) {
-        console.log("instance =",instanceId);
         var self = this;
         var promise = new Promise((resolve, reject) => { 
             mongo.connect(this.url, 
@@ -85,62 +47,47 @@ class Storage {
                     if (err) {
                         reject(err);
                     }
+
                     var db = client.db(self.database);
                     var collection_name = "instance_" + instanceId.replace(/-/g, '_');    
-
-                    console.log("collection_name =",collection_name);
                     var collection = db.collection(collection_name);
 
                     var resultSet = {}
                     if (first != -1) {
-                        console.log("first =", first);
                         resultSet = collection.find().limit(parseInt(first)).sort( {timestamp : 1});
+                        resultSet.toArray((err,docs) => {
+                            if (err) {reject(err);} 
+                            else {resolve(docs);}
+                        });                                 
                     }
-                    else if (last != -1) {
-                        console.log("last!");
-                        
-/*                          collection.count()
+                    else if (last != -1) {                      
+                        collection.count()
                             .then((count) => {
                                 var skip = count - parseInt(last);
-                                console.log("last =", last, ", count =", count, ", skip=", skip);
-                                resultSet = collection.find().skip(skip).sort( {timestamp : 1});      
-                            }); */
-
-
-                        resultSet = collection.find().limit(parseInt(last)).sort( {timestamp : -1});                        
+                                resultSet = collection.find().skip(skip).sort({timestamp : 1});      
+                                resultSet.toArray((err,docs) => {
+                                    if (err) {reject(err);} 
+                                    else {resolve(docs);}
+                                });                                 
+                            })
+                            .catch((e) => {reject(e);});
                     }
                     else {
-                        resultSet = collection.find().sort({timestamp : 1})
+                        resultSet = collection.find().sort( {timestamp : 1});
+                        resultSet.toArray((err,docs) => {
+                            if (err) {reject(err);} 
+                            else {resolve(docs);}
+                        });                         
                     }
-
-                    resultSet.toArray((err,docs) => {
-                            if (err) {
-                                reject(err);
-                            } else {
-                                //resolve(docs);
-                                 if (last != -1) {
-                                    var docsAux = [];
-                                    var j = 0;
-                                    for (var i = docs.length - 1; i != -1; i--) {
-                                        docsAux[j] = docs[i];
-                                        j++;
-                                    }
-                                    resolve(docsAux);
-                                }
-                                else {
-                                    resolve(docs);
-                                }
-                            }
-                        }
-                    );
                 }
             );
         });
         return promise;
     }    
 
+
+
     save(instanceId, body) {
-        console.log("instance =",instanceId);
         var self = this;
         var promise = new Promise((resolve, reject) => { 
             mongo.connect(this.url, 
@@ -148,25 +95,21 @@ class Storage {
                     if (err) {
                         reject(err);
                     }
+                    
                     var db = client.db(self.database);
                     var collection_name = "instance_" + instanceId.replace(/-/g, '_');    
-
-                    console.log("collection_name =",collection_name);
                     var collection = db.collection(collection_name);
+
                     var ts = new Date().valueOf();
                     var doc = {
                         timestamp : ts,
                         data : body
                     }
-                    console.log("doc =", doc);
+
                     collection.insertOne(doc).then((result) => {
                         collection.createIndex({timestamp : 1});
                         resolve({instanceId : instanceId, timestamp : ts});
-                    }).catch((e) => {
-                        reject(e);
-                    });     
-                    //client.close();            
-                    //return;
+                    }).catch((e) => {reject(e);});     
                 }                
             );
         });
