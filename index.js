@@ -42,7 +42,7 @@ server.post('/:instanceId/commit', (req, res, next)=>{
 
     sto.commit(instanceId, data).
         then((result) => {
-            res.send(result);
+            res.send(200);
         }).
         catch((err) => {
             res.send(500);
@@ -53,12 +53,7 @@ server.get('/:instanceId/head', (req, res, next)=>{
     var instanceId = req.params.instanceId;
     sto.head(instanceId).
         then((result) => {
-            if (result.amount == 1) {
-                res.send(result.doc);
-            }
-            else {
-                res.send(undefined);
-            }
+            res.send(result);
         }).
         catch((err) => {
             res.send(500);
@@ -72,12 +67,7 @@ server.get('/:instanceId/history', (req, res, next)=>{
     console.log("instanceId =",instanceId, ", first =", first, ", last =", last);
     sto.history(instanceId, first, last).
         then((result) => {
-            if (result.amount == 0) {
-                res.send(undefined);                
-            }
-            else {
-                res.send(result.doc);
-            }
+            res.send(result);
         }).
         catch((err) => {
             res.send(500);
@@ -98,12 +88,7 @@ server.get('/:instanceId/first', (req, res, next)=>{
     var instanceId = req.params.instanceId;
     sto.first(instanceId).
         then((result) => {
-            if (result.amount == 1) {
-                res.send(result.doc);
-            }
-            else {
-                res.send(undefined);
-            }
+            res.send(result);
         }).
         catch((err) => {
             res.send(500);

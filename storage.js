@@ -63,22 +63,18 @@ class Storage {
                         toArray((err,docs) => {
                             if (err) {
                                 reject(err);
-                            } else if (docs.length == 0) {
-                                resolve({amount : 0});
-                            } else if (docs.length == 1) {
-                                resolve({amount : 1, doc : docs});
                             }
                             else {
-                                reject({amount : docs.length});
-                            }
-
-                            
+                                resolve(docs);
+                            }                
                         });
                 }                
             );
         });
         return promise;
     }
+
+
 
     find(instanceId, first=-1, last=-1) {
         console.log("instance =",instanceId);
@@ -98,11 +94,20 @@ class Storage {
                     var resultSet = {}
                     if (first != -1) {
                         console.log("first =", first);
-                        resultSet = collection.find().limit(parseInt(first)).sort( {timestamp : 1})
+                        resultSet = collection.find().limit(parseInt(first)).sort( {timestamp : 1});
                     }
                     else if (last != -1) {
-                        console.log("last =", last);
-                        resultSet = collection.find().limit(parseInt(last)).sort( {timestamp : -1})
+                        console.log("last!");
+                        
+/*                          collection.count()
+                            .then((count) => {
+                                var skip = count - parseInt(last);
+                                console.log("last =", last, ", count =", count, ", skip=", skip);
+                                resultSet = collection.find().skip(skip).sort( {timestamp : 1});      
+                            }); */
+
+
+                        resultSet = collection.find().limit(parseInt(last)).sort( {timestamp : -1});                        
                     }
                     else {
                         resultSet = collection.find().sort({timestamp : 1})
@@ -111,21 +116,24 @@ class Storage {
                     resultSet.toArray((err,docs) => {
                             if (err) {
                                 reject(err);
-                            } else if (docs.length == 0) {
-                                resolve({amount : 0});
+                            } else {
+                                //resolve(docs);
+                                 if (last != -1) {
+                                    var docsAux = [];
+                                    var j = 0;
+                                    for (var i = docs.length - 1; i != -1; i--) {
+                                        docsAux[j] = docs[i];
+                                        j++;
+                                    }
+                                    resolve(docsAux);
+                                }
+                                else {
+                                    resolve(docs);
+                                }
                             }
-                            else {
-                                docs.sort(function(d1,d2) {
-                                            if (d1.timestamp > d2.timestamp) {
-                                                return 1;
-                                            }
-                                            return -1;
-                                        }
-                                );
-                                resolve({amount : 1, doc : docs});
-                            }                         
-                    });
-                }                
+                        }
+                    );
+                }
             );
         });
         return promise;
