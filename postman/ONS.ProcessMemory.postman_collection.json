@@ -1,7 +1,7 @@
 {
 	"info": {
 		"name": "ONS.ProcessMemory",
-		"_postman_id": "3098ca4f-2555-bf09-3947-b3f8dc946527",
+		"_postman_id": "0292defc-9c47-635f-6438-c2c659020661",
 		"description": "",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -18,22 +18,20 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"conta\" : \"123\",\n\t\"nome\" : \"José\",\n\t\"saldo\" : 400\n}"
+					"raw": "{\n\t\"conta\" : \"456\",\n\t\"nome\" : \"Manoel\",\n\t\"saldo\" : 65\n}"
 				},
 				"url": {
-					"raw": "http://localhost:9091/criaConta/869f6dc8-40cb-188c-fcab-163a9239893f/create",
+					"raw": "http://localhost:9091/869f6dc8-40cb-188c-fcab-163a9239893f/create",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "9091",
 					"path": [
-						"criaConta",
 						"869f6dc8-40cb-188c-fcab-163a9239893f",
 						"create"
 					]
-				},
-				"description": ""
+				}
 			},
 			"response": []
 		},
@@ -49,22 +47,20 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"conta\" : \"123\",\n\t\"nome\" : \"José\",\n\t\"saldo\" : 300\n}"
+					"raw": "{\n\t\"conta\" : \"456\",\n\t\"nome\" : \"Manoel\",\n\t\"saldo\" : 888\n}"
 				},
 				"url": {
-					"raw": "http://localhost:9091/criaConta/869f6dc8-40cb-188c-fcab-163a9239893f/commit",
+					"raw": "http://localhost:9091/869f6dc8-40cb-188c-fcab-163a9239893f/commit",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "9091",
 					"path": [
-						"criaConta",
 						"869f6dc8-40cb-188c-fcab-163a9239893f",
 						"commit"
 					]
-				},
-				"description": ""
+				}
 			},
 			"response": []
 		},
@@ -75,19 +71,17 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:9091/criaConta/869f6dc8-40cb-188c-fcab-163a9239893f/head",
+					"raw": "http://localhost:9091/869f6dc8-40cb-188c-fcab-163a9239893f/head",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "9091",
 					"path": [
-						"criaConta",
 						"869f6dc8-40cb-188c-fcab-163a9239893f",
 						"head"
 					]
-				},
-				"description": ""
+				}
 			},
 			"response": []
 		},
@@ -98,16 +92,129 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:9091/criaConta/869f6dc8-40cb-188c-fcab-163a9239893f/history",
+					"raw": "http://localhost:9091/869f6dc8-40cb-188c-fcab-163a9239893f/history",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "9091",
 					"path": [
-						"criaConta",
 						"869f6dc8-40cb-188c-fcab-163a9239893f",
 						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ProcessMemory:first",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:9091//869f6dc8-40cb-188c-fcab-163a9239893f/first",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9091",
+					"path": [
+						"",
+						"869f6dc8-40cb-188c-fcab-163a9239893f",
+						"first"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "ProcessMemory:history_last",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:9091/869f6dc8-40cb-188c-fcab-163a9239893f/history?last=5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9091",
+					"path": [
+						"869f6dc8-40cb-188c-fcab-163a9239893f",
+						"history"
+					],
+					"query": [
+						{
+							"key": "last",
+							"value": "5",
+							"equals": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "ProcessMemory:history_first",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:9091/869f6dc8-40cb-188c-fcab-163a9239893f/history?first=6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9091",
+					"path": [
+						"869f6dc8-40cb-188c-fcab-163a9239893f",
+						"history"
+					],
+					"query": [
+						{
+							"key": "first",
+							"value": "6",
+							"equals": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "ProcessMemory:first_and_last",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://localhost:9091/869f6dc8-40cb-188c-fcab-163a9239893f/history?first=4&last=2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9091",
+					"path": [
+						"869f6dc8-40cb-188c-fcab-163a9239893f",
+						"history"
+					],
+					"query": [
+						{
+							"key": "first",
+							"value": "4",
+							"equals": true
+						},
+						{
+							"key": "last",
+							"value": "2",
+							"equals": true
+						}
 					]
 				},
 				"description": ""
