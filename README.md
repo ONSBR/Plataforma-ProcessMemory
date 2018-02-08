@@ -17,6 +17,12 @@ Em seguida execute ```npm install``` no diretório onde o **Repositório** foi i
 ### Executando
 Para iniciar a aplicação, execute ```node index.js```
 
+
+## *Atenção*
+
+Nos exemplos que seguem, *869f6dc8-40cb-188c-fcab-163a9239893f* é o identicador de uma instância (de uma aplicação) que está manipulando uma entidade
+
+
 ## CREATE
 
 Cria uma instância de uma entidade
