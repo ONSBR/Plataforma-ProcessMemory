@@ -5,7 +5,8 @@ server.use(restify.plugins.queryParser());
 server.use(restify.plugins.bodyParser());
 
 
-var sto = new Storage({mongoip: "localhost", database : "process_memory"});
+
+var sto = new Storage({mongoip: process.env["MONGO_HOST"] || "mongo", database : "process_memory"});
 
 
 /**
@@ -13,7 +14,7 @@ var sto = new Storage({mongoip: "localhost", database : "process_memory"});
  * @returns 200 se OK, 500 se erro
  */
 server.post('/:instanceId/create', (req, res, next)=>{
-    
+
     var instanceId = req.params.instanceId;
     data = {}
     if(req.body){
@@ -22,7 +23,7 @@ server.post('/:instanceId/create', (req, res, next)=>{
 
     sto.create(instanceId, data).
         then((result) => {
-            res.send(200);            
+            res.send(200);
         }).
         catch((err) => {
             console.log("Erro no 'create':",err);
@@ -31,7 +32,7 @@ server.post('/:instanceId/create', (req, res, next)=>{
 });
 
 /**
- * @description Salva uma nova versão, ou atualização, 
+ * @description Salva uma nova versão, ou atualização,
  * de uma entidade que estiver no 'body'
  * @returns 200 se OK, 500 se erro
  */
@@ -49,7 +50,7 @@ server.post('/:instanceId/commit', (req, res, next)=>{
         catch((err) => {
             console.log("Erro no 'commit':",err);
             res.send(500);
-        });    
+        });
 });
 
 /**
@@ -75,20 +76,20 @@ server.get('/:instanceId/head', (req, res, next)=>{
         catch((err) => {
             console.log("Erro no 'head':",err);
             res.send(500);
-        });      
+        });
 });
 
 /**
  * @description Recupera as versões de uma entidade
- * Se exitir um filtro 'first', serão recuperadas as 'first' primeiras 
+ * Se exitir um filtro 'first', serão recuperadas as 'first' primeiras
  * versões da entidade
  * Se exitir um filtro 'last', serão recuperadas as 'last' últimas
  * versões da entidade
  * Se não exitir qualquer filtro, serão recuperadas todas as versões
  * da entidade
- * 
+ *
  * @returns Se 'first' e 'last' estiverem definidos, será retornado 400
- * @returns Conjunto com uma instância da entidade em uma chave 'data':     
+ * @returns Conjunto com uma instância da entidade em uma chave 'data':
  * @example
         [
             {
@@ -152,7 +153,7 @@ server.get('/:instanceId/history', (req, res, next)=>{
             else {
                 res.send(500);
             }
-        }); 
+        });
 });
 
 /**
@@ -178,7 +179,7 @@ server.get('/:instanceId/first', (req, res, next)=>{
         catch((err) => {
             console.log("Erro no 'first':",err);
             res.send(500);
-        });   
+        });
 });
 
 var port = process.env.PORT || 9091;
