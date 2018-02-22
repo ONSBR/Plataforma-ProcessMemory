@@ -6,7 +6,7 @@ server.use(restify.plugins.bodyParser());
 
 
 
-var sto = new Storage({mongoip: process.env["MONGO_HOST"] || "mongo", database : "process_memory"});
+var sto = new Storage({mongoip: process.env["MONGO_HOST"] || "localhost", database : "process_memory"});
 
 server.post('/:instanceId/create', (req, res, next)=>{
 
@@ -49,7 +49,7 @@ server.get('/:instanceId/head', (req, res, next)=>{
     var instanceId = req.params.instanceId;
     sto.head(instanceId).
         then((result) => {
-            res.send(result.data);
+            res.send(result.map(r => r.data));
         }).
         catch((err) => {
             console.log("Erro no 'head':",err);
@@ -65,7 +65,7 @@ server.get('/:instanceId/history', (req, res, next)=>{
 
     sto.history(instanceId, first, last).
         then((result) => {
-            res.send(result.data);
+            res.send(result.map(r => r.data));
         }).
         catch((err) => {
             console.log("Erro no 'history':",err);
@@ -83,7 +83,7 @@ server.get('/:instanceId/first', (req, res, next)=>{
     var instanceId = req.params.instanceId;
     sto.first(instanceId).
         then((result) => {
-            res.send(result.data);
+            res.send(result.map(r => r.data));
         }).
         catch((err) => {
             console.log("Erro no 'first':",err);
