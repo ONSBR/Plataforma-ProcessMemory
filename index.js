@@ -49,7 +49,7 @@ server.get('/:instanceId/head', (req, res, next)=>{
     var instanceId = req.params.instanceId;
     sto.head(instanceId).
         then((result) => {
-            res.send(result.map(r => r.data));
+            res.send(result.map(r => r.data)[0]);
         }).
         catch((err) => {
             console.log("Erro no 'head':",err);
