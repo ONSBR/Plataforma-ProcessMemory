@@ -1,23 +1,23 @@
 const mongo = require('mongodb').MongoClient;
 const assert = require('assert');
-const uuid = require('uuid-v4');  
+const uuid = require('uuid-v4');
 
 /**
- * @description Responsável pelo armazanamento e recuperação 
+ * @description Responsável pelo armazanamento e recuperação
  * de entidades do servidor mongodb
  */
 class Storage {
 
     /**
-     * 
-     * @param {*} config contains 
-     * { 
+     *
+     * @param {*} config contains
+     * {
      *     mongoip : "some-ip",
      *     database : "some-database"
      * }
      */
     constructor(config) {
-   
+
         // Connection URL
         this.url = "mongodb://" + config.mongoip + ":27017";
         this.database = config.database;
@@ -35,7 +35,7 @@ class Storage {
 
     /**
      * @description Inclui uma nova versão da enitade
-     * @param {*} instanceId instância (de uma app) que está fazendo a criação 
+     * @param {*} instanceId instância (de uma app) que está fazendo a criação
      * @param {*} body instância com a nova versão da entidade
      * @returns Promisse com {instanceId : instanceId, timestamp : ts} se sucesso
      */
@@ -45,7 +45,7 @@ class Storage {
 
     /**
      * @description Recupera a versão mais recente da entidade
-     * @param {*} instanceId  instância (de uma app) que recuperando a 
+     * @param {*} instanceId  instância (de uma app) que recuperando a
      * versão de uma entidade
      * @returns Promisse com um conjunto com  instâncias da entidade em uma chave 'data':
      * @example
@@ -65,7 +65,7 @@ class Storage {
 
     /**
      * @description Recupera a versão mais antiga da entidade
-     * @param {*} instanceId  instância (de uma app) que recuperando a 
+     * @param {*} instanceId  instância (de uma app) que recuperando a
      * versão de uma entidade
      * @returns Promisse com um conjunto com uma instância da entidade em uma chave 'data':
      * @example
@@ -85,61 +85,16 @@ class Storage {
 
     /**
      * @description Recupera a história das versões da entidade
-     * @param {*} instanceId  instância (de uma app) que recuperando a 
+     * @param {*} instanceId  instância (de uma app) que recuperando a
      * versão de uma entidade
-     * @param first se definido, somente as 'first' primeiras versões 
+     * @param first se definido, somente as 'first' primeiras versões
      * da entidade serão recuperadas
-     * @param last se  definido, somente as 'last' últimas versões 
+     * @param last se  definido, somente as 'last' últimas versões
      * da entidade serão recuperadas
      *
-     * @returns Promisse com falha com valor -1, se first e last estiverem definidos     * 
-     * @returns Promisse com um conjunto com uma instância da entidade em uma chave 'data':     
-     * @example
-        [
-            {
-                "data": {
-                    "conta": "456",
-                    "nome": "Manoel",
-                    "saldo": 250
-                }
-            },
-            {
-                "data": {
-                    "conta": "456",
-                    "nome": "Manoel",
-                    "saldo": 255
-                }
-            },
-            {
-                "data": {
-                    "conta": "456",
-                    "nome": "Manoel",
-                    "saldo": 300
-                }
-            },
-            {
-                "data": {
-                    "conta": "456",
-                    "nome": "Manoel",
-                    "saldo": 580
-                }
-            },
-            {
-                "data": {
-                    "conta": "456",
-                    "nome": "Manoel",
-                    "saldo": 650
-                }
-            },
-            {
-                "data": {
-                    "conta": "456",
-                    "nome": "Manoel",
-                    "saldo": 620
-                }
-            }
-        ]
-     */    
+     * @returns Promisse com falha com valor -1, se first e last estiverem definidos     *
+     * @returns Promisse com um conjunto com uma instância da entidade em uma chave 'data':
+     */
     history(instanceId, first, last) {
         return this.find(instanceId, first, last);
     }
@@ -147,31 +102,31 @@ class Storage {
 
     /**
      * @description Recupera a história das versões da entidade
-     * @param {*} instanceId  instância (de uma app) que recuperando a 
+     * @param {*} instanceId  instância (de uma app) que recuperando a
      * versão de uma entidade
-     * @param first se definido, somente as 'first' primeiras versões 
+     * @param first se definido, somente as 'first' primeiras versões
      * da entidade serão recuperadas
-     * @param last se  definido, somente as 'last' últimas versões 
+     * @param last se  definido, somente as 'last' últimas versões
      * da entidade serão recuperadas
-     * 
+     *
      * @returns Promisse com um conjunto com uma instância da entidade em uma chave 'data':
      * @returns Promisse com falha com valor -1
-     */ 
+     */
     find(instanceId, first=-1, last=-1) {
         var self = this;
-        var promise = new Promise((resolve, reject) => { 
+        var promise = new Promise((resolve, reject) => {
 
             if ( (first != -1) && (last != -1) ) {
                 reject(-1);
             }
-            mongo.connect(this.url, 
+            mongo.connect(this.url,
                 function(err, client) {
                     if (err) {
                         reject(err);
                     }
 
                     var db = client.db(self.database);
-                    var collection_name = "instance_" + instanceId.replace(/-/g, '_');    
+                    var collection_name = "instance_" + instanceId.replace(/-/g, '_');
                     var collection = db.collection(collection_name);
                     var projection = {'data':1, _id : 0};
 
@@ -179,34 +134,34 @@ class Storage {
                     if (first != -1) {
                         resultSet = collection.find().project(projection).limit(parseInt(first)).sort( {timestamp : 1});
                         resultSet.toArray((err,docs) => {
-                            if (err) {reject(err);} 
+                            if (err) {reject(err);}
                             else {resolve(docs);}
-                        });                                 
+                        });
                     }
-                    else if (last != -1) {                      
+                    else if (last != -1) {
                         collection.count()
                             .then((count) => {
                                 var skip = count - parseInt(last);
-                                resultSet = collection.find().project(projection).skip(skip).sort({timestamp : 1});      
+                                resultSet = collection.find().project(projection).skip(skip).sort({timestamp : 1});
                                 resultSet.toArray((err,docs) => {
-                                    if (err) {reject(err);} 
+                                    if (err) {reject(err);}
                                     else {resolve(docs);}
-                                });                                 
+                                });
                             })
                             .catch((e) => {reject(e);});
                     }
                     else {
                         resultSet = collection.find().project(projection).sort( {timestamp : 1});
                         resultSet.toArray((err,docs) => {
-                            if (err) {reject(err);} 
+                            if (err) {reject(err);}
                             else {resolve(docs);}
-                        });                         
+                        });
                     }
                 }
             );
         });
         return promise;
-    }    
+    }
 
 
     /**
@@ -217,15 +172,15 @@ class Storage {
      */
     save(instanceId, body) {
         var self = this;
-        var promise = new Promise((resolve, reject) => { 
-            mongo.connect(this.url, 
+        var promise = new Promise((resolve, reject) => {
+            mongo.connect(this.url,
                 function(err, client) {
                     if (err) {
                         reject(err);
                     }
-                    
+
                     var db = client.db(self.database);
-                    var collection_name = "instance_" + instanceId.replace(/-/g, '_');    
+                    var collection_name = "instance_" + instanceId.replace(/-/g, '_');
                     var collection = db.collection(collection_name);
 
                     var ts = new Date().valueOf();
@@ -237,8 +192,8 @@ class Storage {
                     collection.insertOne(doc).then((result) => {
                         collection.createIndex({timestamp : 1});
                         resolve({instanceId : instanceId, timestamp : ts});
-                    }).catch((e) => {reject(e);});     
-                }                
+                    }).catch((e) => {reject(e);});
+                }
             );
         });
         return promise;
