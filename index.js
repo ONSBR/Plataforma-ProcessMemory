@@ -6,13 +6,13 @@ server.use(restify.plugins.bodyParser());
 
 
 
-var sto = new Storage({mongoip: process.env["MONGO_HOST"] || "localhost", database : "process_memory"});
+var sto = new Storage({ mongoip: process.env["MONGO_HOST"] || "localhost", database: "process_memory" });
 
-server.post('/:instanceId/create', (req, res, next)=>{
+server.post('/:instanceId/create', (req, res, next) => {
 
     var instanceId = req.params.instanceId;
     data = {}
-    if(req.body){
+    if (req.body) {
         data = req.body;
     }
 
@@ -21,16 +21,16 @@ server.post('/:instanceId/create', (req, res, next)=>{
             res.send(200);
         }).
         catch((err) => {
-            console.log("Erro no 'create':",err);
+            console.log("Erro no 'create':", err);
             res.send(500);
         });
 });
 
 
-server.post('/:instanceId/commit', (req, res, next)=>{
+server.post('/:instanceId/commit', (req, res, next) => {
     var instanceId = req.params.instanceId;
     data = {}
-    if(req.body){
+    if (req.body) {
         data = req.body;
     }
 
@@ -39,26 +39,56 @@ server.post('/:instanceId/commit', (req, res, next)=>{
             res.send(200);
         }).
         catch((err) => {
-            console.log("Erro no 'commit':",err);
+            console.log("Erro no 'commit':", err);
             res.send(500);
         });
 });
 
 
-server.get('/:instanceId/head', (req, res, next)=>{
+
+
+server.get('/:instanceId/head', (req, res, next) => {
     var instanceId = req.params.instanceId;
     sto.head(instanceId).
         then((result) => {
             res.send(result.map(r => r.data)[0]);
         }).
         catch((err) => {
-            console.log("Erro no 'head':",err);
+            console.log("Erro no 'head':", err);
             res.send(500);
         });
 });
 
+server.post('/:from_instance/:to_instance/clone', (req, res, next) => {
+    var from_instance = req.params.from_instance;
+    var to_instance = req.params.to_instance;
+    var first = req.query.first;
+    sto.history(from_instance, first)
+        .then((result) => {
+            to_clone = result.map(r => r.data);
+            console.log(JSON.stringify(to_clone,null,4));
+            sto.create(to_instance, to_clone.shift()).then(() => {
+                var promises = [];
+                to_clone.forEach(item => {
+                    promises.push(sto.commit(to_instance, item));
+                });
+                return Promise.all(promises);
+            })
+            .then(()=> res.send(200))
+            .catch(e => res.send(500, error(e)));
+        }).catch((err) => {
+            console.log("Clone error:", err);
+            if (err == -1) {
+                res.send([]);
+            }
+            else {
+                res.send(500, err);
+            }
+        });
+});
 
-server.get('/:instanceId/history', (req, res, next)=>{
+
+server.get('/:instanceId/history', (req, res, next) => {
     var instanceId = req.params.instanceId;
     var first = req.query.first;
     var last = req.query.last;
@@ -68,7 +98,7 @@ server.get('/:instanceId/history', (req, res, next)=>{
             res.send(result.map(r => r.data));
         }).
         catch((err) => {
-            console.log("Erro no 'history':",err);
+            console.log("Erro no 'history':", err);
             if (err == -1) {
                 res.send(400);
             }
@@ -79,19 +109,23 @@ server.get('/:instanceId/history', (req, res, next)=>{
 });
 
 
-server.get('/:instanceId/first', (req, res, next)=>{
+server.get('/:instanceId/first', (req, res, next) => {
     var instanceId = req.params.instanceId;
     sto.first(instanceId).
         then((result) => {
             res.send(result.map(r => r.data));
         }).
         catch((err) => {
-            console.log("Erro no 'first':",err);
+            console.log("Erro no 'first':", err);
             res.send(500);
         });
 });
 
+function error(msg) {
+    return { message: msg };
+}
+
 var port = process.env.PORT || 9091;
-server.listen(port, function() {
+server.listen(port, function () {
     console.log('%s listening at %s', server.name, server.url);
 });
