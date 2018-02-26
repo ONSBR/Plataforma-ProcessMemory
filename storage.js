@@ -30,6 +30,7 @@ class Storage {
      * @returns Promisse com {instanceId : instanceId, timestamp : ts} se sucesso
      */
     create(instanceId, body) {
+        console.log(`creating with ${JSON.stringify(body,null,4)}`);
         return this.save(instanceId, body);
     }
 
