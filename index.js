@@ -66,7 +66,12 @@ server.post('/:from_instance/:to_instance/clone', (req, res, next) => {
     sto.history(from_instance, first)
         .then((result) => {
             to_clone = result.map(r => r.data);
-            console.log(JSON.stringify(to_clone,null,4));
+            if (to_clone && to_clone.length > 0){
+                to_clone[0].reproduction = {
+                    from: from_instance,
+                    to: to_instance
+                }
+            }
             sto.create(to_instance, to_clone.shift()).then(() => {
                 var promises = [];
                 to_clone.forEach(item => {
