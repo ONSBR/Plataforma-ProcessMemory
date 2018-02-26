@@ -41,6 +41,7 @@ class Storage {
      * @returns Promisse com {instanceId : instanceId, timestamp : ts} se sucesso
      */
     commit(instanceId, body) {
+        console.log(`commiting with ${JSON.stringify(body,null,4)}`);
         return this.save(instanceId, body);
     }
 
