@@ -71,6 +71,7 @@ server.post('/:from_instance/:to_instance/clone', (req, res, next) => {
                     from: from_instance,
                     to: to_instance
                 }
+                to_clone[1].event = to_clone[0];
             }
             sto.create(to_instance, to_clone.shift()).then(() => {
                 var promises = [];
