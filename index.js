@@ -8,6 +8,14 @@ server.use(restify.plugins.bodyParser());
 
 var sto = new Storage({ mongoip: process.env["MONGO_HOST"] || "localhost", database: "process_memory" });
 
+server.use(function(req, res, next) {
+    console.warn('run for all routes!');
+    if (req.query.app_origin){
+        console.log(`Request from: ${req.query.app_origin}`);
+    }
+    return next();
+});
+
 server.post('/:instanceId/create', (req, res, next) => {
 
     var instanceId = req.params.instanceId;
