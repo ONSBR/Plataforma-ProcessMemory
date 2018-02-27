@@ -71,7 +71,7 @@ server.get('/:instanceId/head', (req, res, next) => {
 server.post('/:from_instance/:to_instance/clone', (req, res, next) => {
     var from_instance = req.params.from_instance;
     var to_instance = req.params.to_instance;
-    var first = req.query.first;
+    var first = 2;
     sto.history(from_instance, first)
         .then((result) => {
             to_clone = result.map(r => r.data);
