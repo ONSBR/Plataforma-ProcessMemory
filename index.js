@@ -9,8 +9,10 @@ server.use(restify.plugins.bodyParser());
 var sto = new Storage({ mongoip: process.env["MONGO_HOST"] || "localhost", database: "process_memory" });
 
 server.use(function(req, res, next) {
+    var parts = req.url.split("/");
+    var last = parts.length - 1;
     if (req.query.app_origin){
-        console.log(`Request from: ${req.query.app_origin}`);
+        console.log(`Request from: ${req.query.app_origin} action: ${parts[last]}`);
     }else{
         console.log(`Request from: ${req.url}`);
     }
