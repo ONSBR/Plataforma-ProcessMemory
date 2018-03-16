@@ -11,8 +11,9 @@ var sto = new Storage({ mongoip: process.env["MONGO_HOST"] || "localhost", datab
 server.use(function(req, res, next) {
     var parts = req.url.split("/");
     var last = parts.length - 1;
+    var action = parts[last].split("?")[0];
     if (req.query.app_origin){
-        console.log(`Request from: ${req.query.app_origin} action: ${parts[last]}`);
+        console.log(`Request from: ${req.query.app_origin} action: ${action}`);
     }else{
         console.log(`Request from: ${req.url}`);
     }
