@@ -60,7 +60,6 @@ class Storage {
         ]
      */
     head(instanceId) {
-        console.log("B");
         return this.find(instanceId, -1, 1);
     }
 

@@ -60,14 +60,10 @@ server.post('/:instanceId/commit', (req, res, next) => {
 
 
 server.get('/:instanceId/head', (req, res, next) => {
-    console.log("0");
     var instanceId = req.params.instanceId;
-    console.log("A");
     sto.head(instanceId).
         then((result) => {
-            console.log("C");
             res.send(result.map(r => r.data)[0]);
-            console.log("D");
         }).
         catch((err) => {
             console.log("Erro no 'head':", err);
