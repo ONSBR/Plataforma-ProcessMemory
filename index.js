@@ -60,6 +60,7 @@ server.post('/:instanceId/commit', (req, res, next) => {
 
 
 server.get('/:instanceId/head', (req, res, next) => {
+    console.log("0");
     var instanceId = req.params.instanceId;
     console.log("A");
     sto.head(instanceId).
