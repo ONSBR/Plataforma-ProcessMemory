@@ -165,7 +165,9 @@ server.get('/:collection', (req, res, next) => {
     if (req.body) {
         data = req.body;
     }
-    sto.findDocument(collection_name, req.query || {}).
+    var query = clone(req.query);
+    delete query["app_origin"]
+    sto.findDocument(collection_name, query || {}).
         then((result) => {
             res.send(result);
         }).
@@ -174,6 +176,10 @@ server.get('/:collection', (req, res, next) => {
             res.send(500, err.toString());
         });
 });
+
+function clone(obj){
+    return JSON.parse(JSON.stringify(obj));
+}
 
 function error(msg) {
     return { message: msg };
