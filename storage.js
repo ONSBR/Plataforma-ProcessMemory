@@ -163,7 +163,19 @@ class Storage {
         return promise;
     }
 
-
+    findDocument(collection, query){
+        var self = this;
+        return new Promise((resolve,reject)=>{
+            mongo.connect(this.url, function(err, client) {
+                if (err) reject(err);
+                var db = client.db(self.database);
+                db.collection(collection).find(query).toArray(function(err, result) {
+                  if (err) reject(err);
+                  resolve(result)
+                });
+              });
+        })
+    }
     /**
      * @description Salva um instância de uma entidade
      * @param {*} instanceId instância (de uma app) que está fazendo a inserção
@@ -192,6 +204,27 @@ class Storage {
                     collection.insertOne(doc).then((result) => {
                         collection.createIndex({timestamp : 1});
                         resolve({instanceId : instanceId, timestamp : ts});
+                    }).catch((e) => {reject(e);});
+                }
+            );
+        });
+        return promise;
+    }
+
+    saveDocument(collection_name, doc) {
+        var self = this;
+        var promise = new Promise((resolve, reject) => {
+            mongo.connect(this.url,
+                function(err, client) {
+                    if (err) {
+                        reject(err);
+                    }
+
+                    var db = client.db(self.database);
+                    var collection = db.collection(collection_name);
+
+                    collection.insertOne(doc).then((result) => {
+                        resolve(result);
                     }).catch((e) => {reject(e);});
                 }
             );

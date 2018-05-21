@@ -39,6 +39,8 @@ server.post('/:instanceId/create', (req, res, next) => {
 });
 
 
+
+
 server.post('/:instanceId/commit', (req, res, next) => {
     var instanceId = req.params.instanceId;
     data = {}
@@ -136,6 +138,40 @@ server.get('/:instanceId/first', (req, res, next) => {
         catch((err) => {
             console.log("Erro no 'first':", err);
             res.send(500);
+        });
+});
+
+
+server.post('/:collection', (req, res, next) => {
+
+    var collection_name = req.params.collection;
+    data = {}
+    if (req.body) {
+        data = req.body;
+    }
+    sto.saveDocument(collection_name, data).
+        then((result) => {
+            res.send(200, result);
+        }).
+        catch((err) => {
+            console.log("Erro no 'create':", err);
+            res.send(500, err.toString());
+        });
+});
+
+server.get('/:collection', (req, res, next) => {
+    var collection_name = req.params.collection;
+    data = {}
+    if (req.body) {
+        data = req.body;
+    }
+    sto.findDocument(collection_name, req.query || {}).
+        then((result) => {
+            res.send(result);
+        }).
+        catch((err) => {
+            console.log("Erro no 'first':", err);
+            res.send(500, err.toString());
         });
 });
 
