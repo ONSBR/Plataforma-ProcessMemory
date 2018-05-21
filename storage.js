@@ -176,6 +176,20 @@ class Storage {
               });
         })
     }
+
+    updateDocument(collection, query, _document){
+        var self = this;
+        return new Promise((resolve,reject)=>{
+            mongo.connect(this.url, function(err, client) {
+                if (err) reject(err);
+                var db = client.db(self.database);
+                db.collection(collection).replaceOne(query, _document, function(err, result) {
+                    if (err) reject(err);
+                    resolve(result)
+                  });
+                });
+            })
+    }
     /**
      * @description Salva um instância de uma entidade
      * @param {*} instanceId instância (de uma app) que está fazendo a inserção

@@ -161,13 +161,27 @@ server.post('/:collection', (req, res, next) => {
 
 server.get('/:collection', (req, res, next) => {
     var collection_name = req.params.collection;
+    var query = clone(req.query);
+    delete query["app_origin"]
+    sto.findDocument(collection_name, query || {}).
+        then((result) => {
+            res.send(result);
+        }).
+        catch((err) => {
+            console.log("Erro no 'first':", err);
+            res.send(500, err.toString());
+        });
+});
+
+server.put('/:collection', (req, res, next) => {
+    var collection_name = req.params.collection;
     data = {}
     if (req.body) {
         data = req.body;
     }
     var query = clone(req.query);
     delete query["app_origin"]
-    sto.findDocument(collection_name, query || {}).
+    sto.updateDocument(collection_name, query || {}, data).
         then((result) => {
             res.send(result);
         }).
