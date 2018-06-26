@@ -161,10 +161,28 @@ server.post('/:collection', (req, res, next) => {
         });
 });
 
+server.get('/instances/byEntities', (req, res, next) => {
+    var query = clone(req.query);
+    var systemId = query["systemId"]
+    var collection_name = ("query_instance_"+systemId).replace("-","_");
+    delete query["app_origin"]
+    var entities = query["entities"].split(",")
+
+    sto.findDocument(collection_name, {"entities": { $elemMatch: {"name" : { $in:entities } } } }).
+        then((result) => {
+            res.send(result);
+        }).
+        catch((err) => {
+            console.log("Erro no 'first':", err);
+            res.send(500, err.toString());
+        });
+});
+
 server.get('/:collection', (req, res, next) => {
     var collection_name = req.params.collection;
     var query = clone(req.query);
     delete query["app_origin"]
+
     sto.findDocument(collection_name, query || {}).
         then((result) => {
             res.send(result);
@@ -174,6 +192,8 @@ server.get('/:collection', (req, res, next) => {
             res.send(500, err.toString());
         });
 });
+
+
 
 server.put('/:collection', (req, res, next) => {
     var collection_name = req.params.collection;
