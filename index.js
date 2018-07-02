@@ -142,6 +142,19 @@ server.get('/:instanceId/first', (req, res, next) => {
 });
 
 
+server.get('/:instanceId/event', (req, res, next) => {
+    var instanceId = req.params.instanceId;
+    sto.first(instanceId).
+        then((result) => {
+            res.send(result.map(r => r.data.event));
+        }).
+        catch((err) => {
+            console.log("Erro no 'first':", err);
+            res.send(500);
+        });
+});
+
+
 server.post('/:collection', (req, res, next) => {
 
     var collection_name = req.params.collection;
