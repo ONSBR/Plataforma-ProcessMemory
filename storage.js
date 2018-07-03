@@ -115,83 +115,109 @@ class Storage {
      */
     find(instanceId, first=-1, last=-1) {
         var self = this;
+        var closure = function(resolve,reject,client){
+            var db = client.db(self.database);
+            var collection_name = "instance_" + instanceId.replace(/-/g, '_');
+            var collection = db.collection(collection_name);
+            var projection = {'data':1, _id : 0};
+
+            var resultSet = {}
+            if (first != -1) {
+                resultSet = collection.find().project(projection).limit(parseInt(first)).sort( {timestamp : 1});
+                resultSet.toArray((err,docs) => {
+                    if (err) {reject(err);}
+                    else {resolve(docs);}
+                });
+            }
+            else if (last != -1) {
+                collection.count()
+                    .then((count) => {
+                        var skip = count - parseInt(last);
+                        resultSet = collection.find().project(projection).skip(skip).sort({timestamp : 1});
+                        resultSet.toArray((err,docs) => {
+                            if (err) {reject(err);}
+                            else {resolve(docs);}
+                        });
+                    })
+                    .catch((e) => {reject(e);});
+            }
+            else {
+                resultSet = collection.find().project(projection).sort( {timestamp : 1});
+                resultSet.toArray((err,docs) => {
+                    if (err) {reject(err);}
+                    else {resolve(docs);}
+                });
+            }
+        }
         var promise = new Promise((resolve, reject) => {
 
             if ( (first != -1) && (last != -1) ) {
                 reject(-1);
             }
-            mongo.connect(this.url,
-                function(err, client) {
-                    if (err) {
-                        reject(err);
+            if (self.mongoClient === null){
+                mongo.connect(this.url,
+                    function(err, client) {
+                        if (err) {
+                            reject(err);
+                        }
+                        self.mongoClient = client;
+                        closure(resolve,reject,self.mongoClient);
                     }
-                    self.mongoClient = client;
-                    var db = client.db(self.database);
-                    var collection_name = "instance_" + instanceId.replace(/-/g, '_');
-                    var collection = db.collection(collection_name);
-                    var projection = {'data':1, _id : 0};
+                );
+            }else{
+                closure(resolve,reject,self.mongoClient);
+            }
 
-                    var resultSet = {}
-                    if (first != -1) {
-                        resultSet = collection.find().project(projection).limit(parseInt(first)).sort( {timestamp : 1});
-                        resultSet.toArray((err,docs) => {
-                            if (err) {reject(err);}
-                            else {resolve(docs);}
-                        });
-                    }
-                    else if (last != -1) {
-                        collection.count()
-                            .then((count) => {
-                                var skip = count - parseInt(last);
-                                resultSet = collection.find().project(projection).skip(skip).sort({timestamp : 1});
-                                resultSet.toArray((err,docs) => {
-                                    if (err) {reject(err);}
-                                    else {resolve(docs);}
-                                });
-                            })
-                            .catch((e) => {reject(e);});
-                    }
-                    else {
-                        resultSet = collection.find().project(projection).sort( {timestamp : 1});
-                        resultSet.toArray((err,docs) => {
-                            if (err) {reject(err);}
-                            else {resolve(docs);}
-                        });
-                    }
-                }
-            );
         });
         return promise;
     }
 
     findDocument(collection, query){
         var self = this;
-        return new Promise((resolve,reject)=>{
-            mongo.connect(this.url, function(err, client) {
+
+        var closure = function(resolve, reject, client) {
+            var db = client.db(self.database);
+            db.collection(collection).find(query).toArray(function(err, result) {
                 if (err) reject(err);
-                self.mongoClient = client;
-                var db = client.db(self.database);
-                db.collection(collection).find(query).toArray(function(err, result) {
-                  if (err) reject(err);
-                  resolve(result)
+                resolve(result)
+            });
+        }
+        return new Promise((resolve,reject)=>{
+            if (self.mongoClient === null) {
+                mongo.connect(this.url, function(err, client) {
+                    if (err) reject(err);
+                    self.mongoClient = client;
+                    closure(resolve,reject,self.mongoClient);
                 });
-              });
+            }else{
+                closure(resolve,reject,self.mongoClient);
+            }
         })
     }
 
     updateDocument(collection, query, _document){
         var self = this;
-        return new Promise((resolve,reject)=>{
-            mongo.connect(this.url, function(err, client) {
+
+        var closure = function(resolve,reject,client) {
+            var db = client.db(self.database);
+            db.collection(collection).replaceOne(query, _document, function(err, result) {
                 if (err) reject(err);
-                var db = client.db(self.database);
-                self.mongoClient = client;
-                db.collection(collection).replaceOne(query, _document, function(err, result) {
+                resolve(result)
+            });
+        }
+
+        return new Promise((resolve,reject)=>{
+            if (self.mongoClient === null) {
+                mongo.connect(this.url, function(err, client) {
                     if (err) reject(err);
-                    resolve(result)
-                  });
+                    self.mongoClient = client;
+                    closure(resolve,reject,self.mongoClient);
                 });
-            })
+            }else{
+                closure(resolve,reject,self.mongoClient);
+            }
+
+        })
     }
     /**
      * @description Salva um instância de uma entidade
@@ -201,29 +227,38 @@ class Storage {
      */
     save(instanceId, body) {
         var self = this;
+
+        var closure = function(resolve,reject,client){
+            var db = client.db(self.database);
+            var collection_name = "instance_" + instanceId.replace(/-/g, '_');
+            var collection = db.collection(collection_name);
+
+            var ts = new Date().valueOf();
+            var doc = {
+                timestamp : ts,
+                data : body
+            }
+
+            collection.insertOne(doc).then((result) => {
+                collection.createIndex({timestamp : 1});
+                resolve({instanceId : instanceId, timestamp : ts});
+            }).catch((e) => {reject(e);});
+        }
         var promise = new Promise((resolve, reject) => {
-            mongo.connect(this.url,
-                function(err, client) {
-                    if (err) {
-                        reject(err);
+            if (self.mongoClient === null){
+                mongo.connect(this.url,
+                    function(err, client) {
+                        if (err) {
+                            reject(err);
+                        }
+                        self.mongoClient = client;
+                        closure(resolve,reject,self.mongoClient)
                     }
-                    self.mongoClient = client;
-                    var db = client.db(self.database);
-                    var collection_name = "instance_" + instanceId.replace(/-/g, '_');
-                    var collection = db.collection(collection_name);
+                );
+            }else{
+                closure(resolve,reject,self.mongoClient)
+            }
 
-                    var ts = new Date().valueOf();
-                    var doc = {
-                        timestamp : ts,
-                        data : body
-                    }
-
-                    collection.insertOne(doc).then((result) => {
-                        collection.createIndex({timestamp : 1});
-                        resolve({instanceId : instanceId, timestamp : ts});
-                    }).catch((e) => {reject(e);});
-                }
-            );
         });
         return promise;
     }
