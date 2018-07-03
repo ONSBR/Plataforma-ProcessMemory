@@ -21,6 +21,7 @@ class Storage {
         // Connection URL
         this.url = "mongodb://" + config.mongoip + ":27017";
         this.database = config.database;
+        this.mongoClient = null
     }
 
     /**
@@ -124,7 +125,7 @@ class Storage {
                     if (err) {
                         reject(err);
                     }
-
+                    self.mongoClient = client;
                     var db = client.db(self.database);
                     var collection_name = "instance_" + instanceId.replace(/-/g, '_');
                     var collection = db.collection(collection_name);
@@ -168,6 +169,7 @@ class Storage {
         return new Promise((resolve,reject)=>{
             mongo.connect(this.url, function(err, client) {
                 if (err) reject(err);
+                self.mongoClient = client;
                 var db = client.db(self.database);
                 db.collection(collection).find(query).toArray(function(err, result) {
                   if (err) reject(err);
@@ -183,6 +185,7 @@ class Storage {
             mongo.connect(this.url, function(err, client) {
                 if (err) reject(err);
                 var db = client.db(self.database);
+                self.mongoClient = client;
                 db.collection(collection).replaceOne(query, _document, function(err, result) {
                     if (err) reject(err);
                     resolve(result)
@@ -204,7 +207,7 @@ class Storage {
                     if (err) {
                         reject(err);
                     }
-
+                    self.mongoClient = client;
                     var db = client.db(self.database);
                     var collection_name = "instance_" + instanceId.replace(/-/g, '_');
                     var collection = db.collection(collection_name);
@@ -227,21 +230,30 @@ class Storage {
 
     saveDocument(collection_name, doc) {
         var self = this;
+
+        var closure = function(resolve,reject,client){
+            var db = client.db(self.database);
+            var collection = db.collection(collection_name);
+
+            collection.insertOne(doc).then((result) => {
+                resolve(result);
+            }).catch((e) => {reject(e);});
+        }
+
         var promise = new Promise((resolve, reject) => {
-            mongo.connect(this.url,
-                function(err, client) {
-                    if (err) {
-                        reject(err);
+            if (self.mongoClient === null) {
+                mongo.connect(this.url,
+                    function(err, client) {
+                        if (err) {
+                            reject(err);
+                        }
+                        self.mongoClient = client;
+                        closure(resolve,reject,self.mongoClient)
                     }
-
-                    var db = client.db(self.database);
-                    var collection = db.collection(collection_name);
-
-                    collection.insertOne(doc).then((result) => {
-                        resolve(result);
-                    }).catch((e) => {reject(e);});
-                }
-            );
+                );
+            }else{
+                closure(resolve,reject,self.mongoClient)
+            }
         });
         return promise;
     }
