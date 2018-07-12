@@ -181,7 +181,9 @@ server.get('/instances/byEntities', (req, res, next) => {
     delete query["app_origin"]
     var entities = query["entities"].split(",")
     var instances = query["instances"].split(",")
-    sto.findDocument(collection_name, {"entities": { $elemMatch: {"name" : { $in:entities } } },"process":{$in: instances} }).
+    var queryMongo = {"entities": { $elemMatch: {"name" : { $in:entities } } },"process":{$in: instances} }
+    console.log(queryMongo)
+    sto.findDocument(collection_name, queryMongo).
         then((result) => {
             res.send(result);
         }).
