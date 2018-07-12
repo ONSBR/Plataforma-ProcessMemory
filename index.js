@@ -180,11 +180,8 @@ server.get('/instances/byEntities', (req, res, next) => {
     var collection_name = ("query_instance_"+systemId).replace("-","_");
     delete query["app_origin"]
     var entities = query["entities"].split(",")
-    var timestamp = 0
-    if (query["timestamp"]) {
-        timestamp = parseFloat(query["timestamp"])
-    }
-    sto.findDocument(collection_name, {"entities": { $elemMatch: {"name" : { $in:entities } } },"timestamp":{$gte: timestamp} }).
+    var instances = query["instances"].split(",")
+    sto.findDocument(collection_name, {"entities": { $elemMatch: {"name" : { $in:entities } } },"process":{$in: instances} }).
         then((result) => {
             res.send(result);
         }).
