@@ -180,7 +180,7 @@ server.get('/instances/byEntities', (req, res, next) => {
     var collection_name = ("query_instance_"+systemId).replace("-","_");
     delete query["app_origin"]
     var entities = query["entities"].split(",")
-    var instances = query["instances"].split(",")
+    //var instances = query["instances"].split(",")
     //var queryMongo = {"entities": { $elemMatch: {"name" : { $in:entities } } },"process":{$in: instances} }
     var queryMongo = {"entities": { $elemMatch: {"name" : { $in:entities } } } }
     console.log(queryMongo)
