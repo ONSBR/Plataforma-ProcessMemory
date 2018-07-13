@@ -184,7 +184,7 @@ server.get('/instances/byEntities', (req, res, next) => {
     //var queryMongo = {"entities": { $elemMatch: {"name" : { $in:entities } } },"process":{$in: instances} }
     var timestamp = 0
     if (query["timestamp"]){
-        timestamp = parseDouble(query["timestamp"])
+        timestamp = parseFloat(query["timestamp"])
     }
     var queryMongo = {"entities": { $elemMatch: {"name" : { $in:entities } } }, timestamp: {$gte:timestamp} }
     console.log(queryMongo)
