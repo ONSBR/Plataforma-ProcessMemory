@@ -182,7 +182,7 @@ server.get('/instances/byEntities', (req, res, next) => {
     var entities = query["entities"].split(",")
     //var instances = query["instances"].split(",")
     //var queryMongo = {"entities": { $elemMatch: {"name" : { $in:entities } } },"process":{$in: instances} }
-    var queryMongo = {"entities": { $elemMatch: {"name" : { $in:entities } } } }
+    var queryMongo = {"entities": { $elemMatch: {"name" : { $in:entities } } }, timestamp: {$gte:query["timestamp"]} }
     console.log(queryMongo)
     sto.findDocument(collection_name, queryMongo).
         then((result) => {
