@@ -182,6 +182,10 @@ server.get('/instances/byEntities', (req, res, next) => {
     var entities = query["entities"].split(",")
 
     var queryMongo = {"entities": { $elemMatch: {"name" : { $in:entities } } }}
+    var tag = query["tag"]
+    if (tag) {
+        queryMongo["tag"] = { $ne:tag }
+    }
     queryMongo["reprocessable"] = true;
     if (query["instances"]){
         var instances = query["instances"].split(",")
