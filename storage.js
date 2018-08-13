@@ -238,7 +238,8 @@ class Storage {
                 timestamp : ts,
                 data : body
             }
-
+            var fs = require('fs')
+            fs.writeFileSync("./"+instanceId+".json",JSON.stringify(doc))
             collection.insertOne(doc).then((result) => {
                 collection.createIndex({timestamp : 1});
                 resolve({instanceId : instanceId, timestamp : ts});

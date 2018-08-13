@@ -54,7 +54,7 @@ server.post('/:instanceId/commit', (req, res, next) => {
         }).
         catch((err) => {
             console.log("Erro no 'commit':", err);
-            res.send(500);
+            res.send(500, err);
         });
 });
 
