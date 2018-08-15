@@ -1,6 +1,9 @@
 const mongo = require('mongodb').MongoClient;
 const assert = require('assert');
 const uuid = require('uuid-v4');
+const GridFS = require('./gridfs');
+
+
 
 /**
  * @description Responsável pelo armazanamento e recuperação
@@ -21,6 +24,8 @@ class Storage {
         // Connection URL
         this.url = "mongodb://" + config.mongoip + ":27017";
         this.database = config.database;
+        this.grid = new GridFS()
+        this.grid.defineBucket(this.database,"instances",8192);
         this.mongoClient = null
     }
 
@@ -119,14 +124,27 @@ class Storage {
             var db = client.db(self.database);
             var collection_name = "instance_" + instanceId.replace(/-/g, '_');
             var collection = db.collection(collection_name);
-            var projection = {'data':1, _id : 0};
+            var projection = {'data':1, 'version':1, _id : 0};
 
             var resultSet = {}
             if (first != -1) {
                 resultSet = collection.find().project(projection).limit(parseInt(first)).sort( {timestamp : 1});
                 resultSet.toArray((err,docs) => {
                     if (err) {reject(err);}
-                    else {resolve(docs);}
+                    else {
+                        var promises = []
+                        docs.forEach(doc => {
+                            if (doc.version === 2) {
+                                promises.push(self.grid.download(doc.data.fileName))
+                            }else{
+                                promises.push(new Promise(res => res(doc)));
+                            }
+
+                        })
+                        Promise.all(promises).then(list => {
+                            resolve(list);
+                        }).catch(reject)
+                    }
                 });
             }
             else if (last != -1) {
@@ -136,8 +154,21 @@ class Storage {
                         resultSet = collection.find().project(projection).skip(skip).sort({timestamp : 1});
                         resultSet.toArray((err,docs) => {
                             if (err) {reject(err);}
-                            else {resolve(docs);}
-                        });
+                            else {
+                                var promises = []
+                                docs.forEach(doc => {
+                                    if (doc.version === 2) {
+                                        promises.push(self.grid.download(doc.data.fileName))
+                                    }else{
+                                        promises.push(new Promise(res => res(doc)));
+                                    }
+
+                                })
+                                Promise.all(promises).then(list => {
+                                    resolve(list);
+                                }).catch(reject)
+                                    }
+                                });
                     })
                     .catch((e) => {reject(e);});
             }
@@ -145,7 +176,20 @@ class Storage {
                 resultSet = collection.find().project(projection).sort( {timestamp : 1});
                 resultSet.toArray((err,docs) => {
                     if (err) {reject(err);}
-                    else {resolve(docs);}
+                    else {
+                        var promises = []
+                        docs.forEach(doc => {
+                            if (doc.version === 2) {
+                                promises.push(self.grid.download(doc.data.fileName))
+                            }else{
+                                promises.push(new Promise(res => res(doc)));
+                            }
+
+                        })
+                        Promise.all(promises).then(list => {
+                            resolve(list);
+                        }).catch(reject)
+                    }
                 });
             }
         }
@@ -161,6 +205,7 @@ class Storage {
                             reject(err);
                         }
                         self.mongoClient = client;
+                        self.grid.setClient(client);
                         closure(resolve,reject,self.mongoClient);
                     }
                 );
@@ -187,6 +232,7 @@ class Storage {
                 mongo.connect(this.url, function(err, client) {
                     if (err) reject(err);
                     self.mongoClient = client;
+                    self.grid.setClient(client);
                     closure(resolve,reject,self.mongoClient);
                 });
             }else{
@@ -211,6 +257,7 @@ class Storage {
                 mongo.connect(this.url, function(err, client) {
                     if (err) reject(err);
                     self.mongoClient = client;
+                    self.grid.setClient(client);
                     closure(resolve,reject,self.mongoClient);
                 });
             }else{
@@ -235,15 +282,18 @@ class Storage {
 
             var ts = new Date().valueOf();
             var doc = {
+                version: 2,
                 timestamp : ts,
-                data : body
+                data : {
+                    fileName: uuid()+".json"
+                }
             }
-            var fs = require('fs')
-            fs.writeFileSync("./"+instanceId+".json",JSON.stringify(doc))
-            collection.insertOne(doc).then((result) => {
-                collection.createIndex({timestamp : 1});
-                resolve({instanceId : instanceId, timestamp : ts});
-            }).catch((e) => {reject(e);});
+            self.grid.upload(doc.data.fileName,{data:body}).then(()=>{
+                collection.insertOne(doc).then((result) => {
+                    collection.createIndex({timestamp : 1});
+                    resolve({instanceId : instanceId, timestamp : ts});
+                }).catch((e) => {reject(e);});
+            }).catch(reject)
         }
         var promise = new Promise((resolve, reject) => {
             if (self.mongoClient === null){
@@ -253,6 +303,7 @@ class Storage {
                             reject(err);
                         }
                         self.mongoClient = client;
+                        self.grid.setClient(client);
                         closure(resolve,reject,self.mongoClient)
                     }
                 );
@@ -284,6 +335,7 @@ class Storage {
                             reject(err);
                         }
                         self.mongoClient = client;
+                        self.grid.setClient(client);
                         closure(resolve,reject,self.mongoClient)
                     }
                 );
