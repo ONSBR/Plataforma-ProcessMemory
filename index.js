@@ -17,10 +17,6 @@ server.use(function (req, res, next) {
     } else {
         console.log(`Request from: ${req.url}`);
     }
-    var origin = req.get('origin');
-    if(origin){
-        console.log("origin: ",origin);
-    }
     return next();
 });
 
