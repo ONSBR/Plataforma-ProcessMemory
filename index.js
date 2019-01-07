@@ -17,6 +17,10 @@ server.use(function (req, res, next) {
     } else {
         console.log(`Request from: ${req.url}`);
     }
+    var origin = req.get('origin');
+    if(origin){
+        console.log("origin: ",origin);
+    }
     return next();
 });
 
@@ -27,7 +31,7 @@ server.post('/:instanceId/create', (req, res, next) => {
     if (req.body) {
         data = req.body;
     }
-
+    console.log(`creating instance ${instanceId} with data: `,JSON.stringify(data));
     sto.create(instanceId, data).
         then((result) => {
             res.send(200);
@@ -47,7 +51,7 @@ server.post('/:instanceId/commit', (req, res, next) => {
     if (req.body) {
         data = req.body;
     }
-
+    console.log(`commiting instance ${instanceId} with data: `,JSON.stringify(data));
     sto.commit(instanceId, data).
         then((result) => {
             res.send(200);
