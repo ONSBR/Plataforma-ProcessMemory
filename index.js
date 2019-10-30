@@ -47,7 +47,7 @@ server.post('/:instanceId/commit', (req, res, next) => {
     if (req.body) {
         data = req.body;
     }
-    console.log(`commiting instance ${instanceId} with data: `,JSON.stringify(data));
+    console.log(`commiting instance ${instanceId}`);
     sto.commit(instanceId, data).
         then((result) => {
             res.send(200);
