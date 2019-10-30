@@ -27,7 +27,7 @@ server.post('/:instanceId/create', (req, res, next) => {
     if (req.body) {
         data = req.body;
     }
-    console.log(`creating instance ${instanceId} with data: `,JSON.stringify(data));
+    console.log(`creating instance ${instanceId}`);
     sto.create(instanceId, data).
         then((result) => {
             res.send(200);
