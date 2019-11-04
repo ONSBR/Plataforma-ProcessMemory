@@ -6,7 +6,13 @@ server.use(restify.plugins.bodyParser());
 
 
 
-var sto = new Storage({ mongoip: process.env["MONGO_HOST"] || "localhost", database: "process_memory" });
+var sto = new Storage(
+    {
+        mongoip: process.env["MONGO_HOST"] || "localhost",
+        database: "process_memory",
+        mongo_options: process.env["MONGO_OPTIONS"] || ""
+    }
+);
 
 server.use(function (req, res, next) {
     var parts = req.url.split("/");
@@ -177,19 +183,19 @@ server.post('/:collection', (req, res, next) => {
 server.get('/instances/byEntities', (req, res, next) => {
     var query = clone(req.query);
     var systemId = query["systemId"]
-    var collection_name = ("query_instance_"+systemId).replace("-","_");
+    var collection_name = ("query_instance_" + systemId).replace("-", "_");
     delete query["app_origin"]
     var entities = query["entities"].split(",")
 
-    var queryMongo = {"entities": { $elemMatch: {"name" : { $in:entities } } }}
+    var queryMongo = { "entities": { $elemMatch: { "name": { $in: entities } } } }
     var tag = query["tag"]
     if (tag) {
-        queryMongo["tag"] = { $ne:tag }
+        queryMongo["tag"] = { $ne: tag }
     }
     queryMongo["reprocessable"] = true;
-    if (query["instances"]){
+    if (query["instances"]) {
         var instances = query["instances"].split(",")
-        queryMongo["process"]={$in: instances}
+        queryMongo["process"] = { $in: instances }
     }
     //var queryMongo = {"entities": { $elemMatch: {"name" : { $in:entities } } }, timestamp: {$gte:timestamp} }
     console.log(queryMongo)

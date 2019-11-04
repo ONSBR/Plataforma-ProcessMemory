@@ -2,7 +2,7 @@ const mongo = require('mongodb').MongoClient;
 const assert = require('assert');
 const uuid = require('uuid-v4');
 const GridFS = require('./gridfs');
-
+const fs = require('fs');
 
 
 /**
@@ -22,11 +22,12 @@ class Storage {
     constructor(config) {
 
         // Connection URL
-        this.url = "mongodb://" + config.mongoip + ":27017";
+        this.url = "mongodb://" + config.mongoip + ":27017" + config.mongo_options;
         this.database = config.database;
         this.grid = new GridFS()
-        this.grid.defineBucket(this.database,"instances",8192);
+        this.grid.defineBucket(this.database, "instances", 8192);
         this.mongoClient = null
+        this.ca = [fs.readFileSync("rds-combined-ca-bundle.pem")];
     }
 
     /**
@@ -85,7 +86,7 @@ class Storage {
             }
         ]
      */
-    first (instanceId) {
+    first(instanceId) {
         return this.find(instanceId, 1);
     }
 
@@ -118,25 +119,25 @@ class Storage {
      * @returns Promisse com um conjunto com uma instância da entidade em uma chave 'data':
      * @returns Promisse com falha com valor -1
      */
-    find(instanceId, first=-1, last=-1) {
+    find(instanceId, first = -1, last = -1) {
         var self = this;
-        var closure = function(resolve,reject,client){
+        var closure = function (resolve, reject, client) {
             var db = client.db(self.database);
             var collection_name = "instance_" + instanceId.replace(/-/g, '_');
             var collection = db.collection(collection_name);
-            var projection = {'data':1, 'version':1, _id : 0};
+            var projection = { 'data': 1, 'version': 1, _id: 0 };
 
             var resultSet = {}
             if (first != -1) {
-                resultSet = collection.find().project(projection).limit(parseInt(first)).sort( {timestamp : 1});
-                resultSet.toArray((err,docs) => {
-                    if (err) {reject(err);}
+                resultSet = collection.find().project(projection).limit(parseInt(first)).sort({ timestamp: 1 });
+                resultSet.toArray((err, docs) => {
+                    if (err) { reject(err); }
                     else {
                         var promises = []
                         docs.forEach(doc => {
                             if (doc.version === 2) {
                                 promises.push(self.grid.download(doc.data.fileName))
-                            }else{
+                            } else {
                                 promises.push(new Promise(res => res(doc)));
                             }
 
@@ -151,15 +152,15 @@ class Storage {
                 collection.count()
                     .then((count) => {
                         var skip = count - parseInt(last);
-                        resultSet = collection.find().project(projection).skip(skip).sort({timestamp : 1});
-                        resultSet.toArray((err,docs) => {
-                            if (err) {reject(err);}
+                        resultSet = collection.find().project(projection).skip(skip).sort({ timestamp: 1 });
+                        resultSet.toArray((err, docs) => {
+                            if (err) { reject(err); }
                             else {
                                 var promises = []
                                 docs.forEach(doc => {
                                     if (doc.version === 2) {
                                         promises.push(self.grid.download(doc.data.fileName))
-                                    }else{
+                                    } else {
                                         promises.push(new Promise(res => res(doc)));
                                     }
 
@@ -167,21 +168,21 @@ class Storage {
                                 Promise.all(promises).then(list => {
                                     resolve(list);
                                 }).catch(reject)
-                                    }
-                                });
+                            }
+                        });
                     })
-                    .catch((e) => {reject(e);});
+                    .catch((e) => { reject(e); });
             }
             else {
-                resultSet = collection.find().project(projection).sort( {timestamp : 1});
-                resultSet.toArray((err,docs) => {
-                    if (err) {reject(err);}
+                resultSet = collection.find().project(projection).sort({ timestamp: 1 });
+                resultSet.toArray((err, docs) => {
+                    if (err) { reject(err); }
                     else {
                         var promises = []
                         docs.forEach(doc => {
                             if (doc.version === 2) {
                                 promises.push(self.grid.download(doc.data.fileName))
-                            }else{
+                            } else {
                                 promises.push(new Promise(res => res(doc)));
                             }
 
@@ -195,73 +196,90 @@ class Storage {
         }
         var promise = new Promise((resolve, reject) => {
 
-            if ( (first != -1) && (last != -1) ) {
+            if ((first != -1) && (last != -1)) {
                 reject(-1);
             }
-            if (self.mongoClient === null){
+            if (self.mongoClient === null) {
                 mongo.connect(this.url,
-                    function(err, client) {
+                    {
+                        sslValidate: true,
+                        sslCA: this.ca,
+                        useNewUrlParser: true
+                    },
+                    function (err, client) {
                         if (err) {
                             reject(err);
                         }
                         self.mongoClient = client;
                         self.grid.setClient(client);
-                        closure(resolve,reject,self.mongoClient);
+                        closure(resolve, reject, self.mongoClient);
                     }
                 );
-            }else{
-                closure(resolve,reject,self.mongoClient);
+            } else {
+                closure(resolve, reject, self.mongoClient);
             }
 
         });
         return promise;
     }
 
-    findDocument(collection, query){
+    findDocument(collection, query) {
         var self = this;
 
-        var closure = function(resolve, reject, client) {
+        var closure = function (resolve, reject, client) {
             var db = client.db(self.database);
-            db.collection(collection).find(query).toArray(function(err, result) {
+            db.collection(collection).find(query).toArray(function (err, result) {
                 if (err) reject(err);
                 resolve(result)
             });
         }
-        return new Promise((resolve,reject)=>{
+        return new Promise((resolve, reject) => {
             if (self.mongoClient === null) {
-                mongo.connect(this.url, function(err, client) {
-                    if (err) reject(err);
-                    self.mongoClient = client;
-                    self.grid.setClient(client);
-                    closure(resolve,reject,self.mongoClient);
-                });
-            }else{
-                closure(resolve,reject,self.mongoClient);
+                mongo.connect(this.url,
+                    {
+                        sslValidate: true,
+                        sslCA: this.ca,
+                        useNewUrlParser: true
+                    },
+                    function (err, client) {
+                        if (err) reject(err);
+                        self.mongoClient = client;
+                        self.grid.setClient(client);
+                        closure(resolve, reject, self.mongoClient);
+                    });
+            } else {
+                closure(resolve, reject, self.mongoClient);
             }
         })
     }
 
-    updateDocument(collection, query, _document){
+    updateDocument(collection, query, _document) {
         var self = this;
 
-        var closure = function(resolve,reject,client) {
+        var closure = function (resolve, reject, client) {
             var db = client.db(self.database);
-            db.collection(collection).replaceOne(query, _document, function(err, result) {
+            db.collection(collection).replaceOne(query, _document, function (err, result) {
                 if (err) reject(err);
                 resolve(result)
             });
         }
 
-        return new Promise((resolve,reject)=>{
+        return new Promise((resolve, reject) => {
             if (self.mongoClient === null) {
-                mongo.connect(this.url, function(err, client) {
-                    if (err) reject(err);
-                    self.mongoClient = client;
-                    self.grid.setClient(client);
-                    closure(resolve,reject,self.mongoClient);
-                });
-            }else{
-                closure(resolve,reject,self.mongoClient);
+                mongo.connect(this.url,
+                    {
+                        sslValidate: true,
+                        sslCA: this.ca,
+                        useNewUrlParser: true
+                    },
+                    function (err, client) {
+                        if (err) reject(err);
+                        self.mongoClient = client;
+                        self.grid.setClient(client);
+                        closure(resolve, reject, self.mongoClient);
+                    });
+            } else {
+                closure(resolve, reject, self.mongoClient);
             }
 
         })
@@ -275,7 +293,7 @@ class Storage {
     save(instanceId, body) {
         var self = this;
 
-        var closure = function(resolve,reject,client){
+        var closure = function (resolve, reject, client) {
             var db = client.db(self.database);
             var collection_name = "instance_" + instanceId.replace(/-/g, '_');
             var collection = db.collection(collection_name);
@@ -283,32 +301,37 @@ class Storage {
             var ts = new Date().valueOf();
             var doc = {
                 version: 2,
-                timestamp : ts,
-                data : {
-                    fileName: uuid()+".json"
+                timestamp: ts,
+                data: {
+                    fileName: uuid() + ".json"
                 }
             }
-            self.grid.upload(doc.data.fileName,{data:body}).then(()=>{
+            self.grid.upload(doc.data.fileName, { data: body }).then(() => {
                 collection.insertOne(doc).then((result) => {
-                    collection.createIndex({timestamp : 1});
-                    resolve({instanceId : instanceId, timestamp : ts});
-                }).catch((e) => {reject(e);});
+                    collection.createIndex({ timestamp: 1 });
+                    resolve({ instanceId: instanceId, timestamp: ts });
+                }).catch((e) => { reject(e); });
             }).catch(reject)
         }
         var promise = new Promise((resolve, reject) => {
-            if (self.mongoClient === null){
+            if (self.mongoClient === null) {
                 mongo.connect(this.url,
-                    function(err, client) {
+                    {
+                        sslValidate: true,
+                        sslCA: this.ca,
+                        useNewUrlParser: true
+                    },
+                    function (err, client) {
                         if (err) {
                             reject(err);
                         }
                         self.mongoClient = client;
                         self.grid.setClient(client);
-                        closure(resolve,reject,self.mongoClient)
+                        closure(resolve, reject, self.mongoClient)
                     }
                 );
-            }else{
-                closure(resolve,reject,self.mongoClient)
+            } else {
+                closure(resolve, reject, self.mongoClient)
             }
 
         });
@@ -318,29 +341,34 @@ class Storage {
     saveDocument(collection_name, doc) {
         var self = this;
 
-        var closure = function(resolve,reject,client){
+        var closure = function (resolve, reject, client) {
             var db = client.db(self.database);
             var collection = db.collection(collection_name);
 
             collection.insertOne(doc).then((result) => {
                 resolve(result);
-            }).catch((e) => {reject(e);});
+            }).catch((e) => { reject(e); });
         }
 
         var promise = new Promise((resolve, reject) => {
             if (self.mongoClient === null) {
                 mongo.connect(this.url,
-                    function(err, client) {
+                    {
+                        sslValidate: true,
+                        sslCA: this.ca,
+                        useNewUrlParser: true
+                    },
+                    function (err, client) {
                         if (err) {
                             reject(err);
                         }
                         self.mongoClient = client;
                         self.grid.setClient(client);
-                        closure(resolve,reject,self.mongoClient)
+                        closure(resolve, reject, self.mongoClient)
                     }
                 );
-            }else{
-                closure(resolve,reject,self.mongoClient)
+            } else {
+                closure(resolve, reject, self.mongoClient)
             }
         });
         return promise;
