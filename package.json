@@ -10,7 +10,7 @@
   "dependencies": {
     "gridfs": "^1.0.0",
     "gridfs-stream": "^1.1.1",
-    "mongodb": "^3.0.2",
+    "mongodb": "^3.1.13",
     "restify": "^7.2.1",
     "sha1": "^1.1.1",
     "uuid-v4": "^0.1.0"
